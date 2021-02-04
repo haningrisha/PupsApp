@@ -46,6 +46,8 @@ while True:
             elif values["-FOLDER-"] == "":
                 window['-OUTPUT-'].update('Папка не выбрана', text_color="OrangeRed4")
             elif values["-FILENAME-"] == "":
+                window['-OUTPUT-'].update("Имя файла не указано", text_color="OrangeRed4")
+            else:
                 files = values["-FILES-"].split(";")
                 create_attach_report(files, values["-FOLDER-"], values["-FILENAME-"])
                 window['-OUTPUT-'].update('Файл создан', text_color="white")
