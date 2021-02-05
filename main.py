@@ -1,11 +1,12 @@
 import PySimpleGUI as sg
 from openpyxl.utils.exceptions import InvalidFileException
-from reporter import create_detach_report, create_attach_report
+from reporter.exceptions import UnsupportedNameLength
+from reporter import renessans, alyans
 
 sg.theme("Purple")
 
 layout = [[sg.Text('Страховая компания')],
-          [sg.Combo(["Ренесанс"], default_value="Ренесанс",  key="-INSURANCE-")],
+          [sg.Combo(["Ренессанс", "Альянс"], default_value="Ренессанс",  key="-INSURANCE-", enable_events=True)],
           [sg.Text('Отчеты')],
           [sg.Input(), sg.FilesBrowse(key="-FILES-")],
           [sg.Text('Папка для сохранения')],
@@ -31,7 +32,10 @@ while True:
                 window['-OUTPUT-'].update('Имя файла не выбрано', text_color="OrangeRed4")
             else:
                 files = values["-FILES-"].split(";")
-                create_detach_report(files, values["-FOLDER-"], values["-FILENAME-"])
+                if values["-INSURANCE-"] == "Ренессанс":
+                    renessans.create_detach_report(files, values["-FOLDER-"], values["-FILENAME-"])
+                elif values["-INSURANCE-"] == "Альянс":
+                    alyans.create_detach_report(files, values["-FOLDER-"], values["-FILENAME-"])
                 window['-OUTPUT-'].update('Файл создан', text_color="white")
         except (TypeError, ValueError):
             sg.popup("Ошибка", "Дата открепления не распознана")
@@ -49,10 +53,15 @@ while True:
                 window['-OUTPUT-'].update("Имя файла не указано", text_color="OrangeRed4")
             else:
                 files = values["-FILES-"].split(";")
-                create_attach_report(files, values["-FOLDER-"], values["-FILENAME-"])
+                if values["-INSURANCE-"] == "Ренессанс":
+                    renessans.create_attach_report(files, values["-FOLDER-"], values["-FILENAME-"])
+                elif values["-INSURANCE-"] == "Альянс":
+                    alyans.create_attach_report(files, values["-FOLDER-"], values["-FILENAME-"])
                 window['-OUTPUT-'].update('Файл создан', text_color="white")
         except InvalidFileException:
             sg.popup_error("Неверный формат файла.", "\nПоддерживаются только .xlsx,.xlsm,.xltx,.xltm,.xls")
+        except UnsupportedNameLength as e:
+            sg.popup_error(e.expression, e.message)
         except:
             sg.popup_error("Ошибка", "Неизвестная ошибка")
 window.close()

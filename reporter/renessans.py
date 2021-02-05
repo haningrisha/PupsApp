@@ -1,42 +1,11 @@
 from openpyxl import load_workbook, Workbook
-import xlrd
+from reporter.utils import open_xls_as_xlsx, fit_columns_width, format_date
 import os
+from reporter.config import header, codes, ids
 import re
 import datetime
+
 target = ["Фамилия", "Имя", "Отчество", "Дата рождения", "Номер полиса"]
-detach_header = ["Фамилия", "Имя", "Отчество", "Дата рождения", "Номер полиса", "Дата открепления"]
-attach_header = \
-    [["SURNAME", "FIRST_NAME", "SEC_NAME", "DATE_BIRTH", "POLICY", "DATE_FRM", "DATE_TO", "ADRES", "TEL", "MP",
-      "WORK_PLACE"],
-     ["ФАМИЛИЯ", "ИМЯ", "ОТЧЕСТВО", "ДАТ. РОЖД.", "№ ПОЛИСА", "НАЧАЛО", "КОНЕЦ", "АДРЕС", "ТЕЛЕФОН", "МЕД. ПРОГРАММА",
-      "МЕСТО РАБОТЫ"]]
-
-
-def open_xls_as_xlsx(filename):
-    book = xlrd.open_workbook(filename)
-    index = 0
-    sheet = book.sheet_by_index(index)
-    book1 = Workbook()
-    sheet1 = book1.active
-    for row in sheet:
-        data_row = []
-        for cell in row:
-            if cell.ctype == 3:
-                data_row.append(xlrd.xldate_as_datetime(cell.value, 0))
-            else:
-                data_row.append(cell.value)
-        sheet1.append(data_row)
-    return book1
-
-
-def fit_columns_width(ws):
-    dims = {}
-    for row in ws.rows:
-        for cell in row:
-            if cell.value:
-                dims[cell.column_letter] = max((dims.get(cell.column_letter, 0), len(str(cell.value)) + 2))
-    for col, value in dims.items():
-        ws.column_dimensions[col].width = value
 
 
 def get_date(ws):
@@ -46,7 +15,7 @@ def get_date(ws):
     return date
 
 
-def get_data(ws):
+def get_detach_data(ws):
     data = []
     found = False
     date = get_date(ws)
@@ -64,7 +33,7 @@ def get_data(ws):
 
 def get_attach_data(ws):
     data = []
-    for row in ws.iter_rows(min_row=3):
+    for row in ws.iter_rows(min_row=3, max_col=7):
         data.append([cell.value for cell in row])
     return data
 
@@ -72,7 +41,7 @@ def get_attach_data(ws):
 def create_detach_report(files: list, save_directory: str, filename="File"):
     wb = Workbook()
     ws = wb.active
-    data = [detach_header]
+    data = [header]
     for file in files:
         if file.split(".")[-1] == "xls":
             wb_tmp = open_xls_as_xlsx(file)
@@ -80,17 +49,27 @@ def create_detach_report(files: list, save_directory: str, filename="File"):
             wb_tmp = load_workbook(file)
         ws_name = wb_tmp.sheetnames[0]
         ws_tmp = wb_tmp[ws_name]
-        data += get_data(ws_tmp)
-    for r in data:
-        ws.append(r)
+        data += get_detach_data(ws_tmp)
+    for i, r in enumerate(data):
+        if i != 0:
+            r.insert(5, None)
+            r.insert(5, None)
+            ws.append(r + codes["renessans1"] + ids["renessans_detach"])
+        else:
+            ws.append(r)
+    for i, r in enumerate(data):
+        if i != 0:
+            ws.append(r + codes["renessans2"] + ids["renessans_detach"])
+    format_date(ws, 4)
+    format_date(ws, 8)
     fit_columns_width(ws)
-    wb.save(os.path.join(save_directory, filename+".xlsx"))
+    wb.save(os.path.join(save_directory, filename + ".xlsx"))
 
 
 def create_attach_report(files: list, save_directory: str, filename="FileAttach"):
     wb = Workbook()
     ws = wb.active
-    data = attach_header
+    data = [header]
     for file in files:
         if file.split(".")[-1] == "xls":
             wb_tmp = open_xls_as_xlsx(file)
@@ -99,8 +78,18 @@ def create_attach_report(files: list, save_directory: str, filename="FileAttach"
         ws_name = wb_tmp.sheetnames[0]
         ws_tmp = wb_tmp[ws_name]
         data += get_attach_data(ws_tmp)
-    for r in data:
-        ws.append(r)
+    for i, r in enumerate(data):
+        if i != 0:
+            r.insert(8, None)
+            ws.append(r + codes["renessans1"] + ids["renessans_attach"])
+        else:
+            ws.append(r)
+    for i, r in enumerate(data):
+        if i != 0:
+            ws.append(r + codes["renessans2"] + ids["renessans_attach"])
+    format_date(ws, 4)
+    format_date(ws, 6)
+    format_date(ws, 7)
     fit_columns_width(ws)
     wb.save(os.path.join(save_directory, filename + ".xlsx"))
 
@@ -110,7 +99,7 @@ if __name__ == '__main__':
         [
             "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/002_1060_001???35890520?_3_????_01_02_2021.xls",
             "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/002_1060_001???35719520?_19_????_03_02_2021.xlsx"
-            ],
+        ],
         "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test")
     create_attach_report(
         [
