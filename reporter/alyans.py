@@ -6,9 +6,13 @@ from reporter.exceptions import UnsupportedNameLength
 
 target = ["ФИО", "Номер полиса", "Дата начала обслуживания", "Дата окончания обслуживания", "Программа обслуживания",
           "Дата рождения", "Страхователь", "Дата отмены"]
-column_map = {
+column_map_attach = {
     "Номер полиса": "POLICY", "Дата начала обслуживания": "DATE_FRM", "Дата окончания обслуживания": "DATE_TO",
     "Дата рождения": "DATE_BIRTH", "Дата отмены": "DATE_CNCL"
+}
+column_map_detach = {
+    "Номер полиса": "POLICY",
+    "Дата рождения": "DATE_BIRTH", "Дата окончания обслуживания": "DATE_CNCL"
 }
 
 
@@ -31,7 +35,7 @@ def format_names(names):
     return {"SURNAME": surname, "FIRST_NAME": first_name, "SEC_NAME": sec_name}
 
 
-def get_data(ws):
+def get_data(ws, column_map):
     data = {}
     for row in ws.iter_rows(max_row=1):
         for i, cell in enumerate(row):
@@ -52,7 +56,7 @@ def get_data(ws):
     return formatted_data
 
 
-def get_files_data(files):
+def get_files_data(files, column_map):
     data = [header]
     for file in files:
         if file.split(".")[-1] == "xls":
@@ -63,14 +67,14 @@ def get_files_data(files):
             wb_tmp = load_workbook(file)
         ws_name = wb_tmp.sheetnames[0]
         ws_tmp = wb_tmp[ws_name]
-        data += get_data(ws_tmp)
+        data += get_data(ws_tmp, column_map)
     return data
 
 
 def create_attach_report(files: list, save_directory: str, filename="FileAlyans"):
     wb = Workbook()
     ws = wb.active
-    data = get_files_data(files)
+    data = get_files_data(files, column_map_attach)
     for i, r in enumerate(data):
         if i != 0:
             ws.append(r + codes["alyans1"] + ids["alyans_attach"])
@@ -86,7 +90,7 @@ def create_attach_report(files: list, save_directory: str, filename="FileAlyans"
 def create_detach_report(files: list, save_directory: str, filename="FileAlyans"):
     wb = Workbook()
     ws = wb.active
-    data = get_files_data(files)
+    data = get_files_data(files, column_map_detach)
     for i, r in enumerate(data):
         if i != 0:
             ws.append(r + codes["alyans1"] + ids["alyans_detach"])
