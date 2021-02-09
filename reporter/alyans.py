@@ -56,33 +56,38 @@ def get_data(ws, column_map):
     return formatted_data
 
 
-def get_files_data(files, column_map):
-    data = [header]
-    for file in files:
-        if file.split(".")[-1] == "xls":
-            wb_tmp = open_xls_as_xlsx(file)
-        elif file.split(".")[-1] == "csv":
-            wb_tmp = open_csv_as_xlsx(file)
-        else:
-            wb_tmp = load_workbook(file)
-        ws_name = wb_tmp.sheetnames[0]
-        ws_tmp = wb_tmp[ws_name]
-        data += get_data(ws_tmp, column_map)
+def get_number(file_name):
+    number = file_name.split("_")[2]
+    if number == '1492':
+        return "alyans1"
+    elif number == '10062':
+        return "alyans2"
+    else:
+        raise ValueError
+
+
+def get_files_data(file, column_map):
+    data = []
+    if file.split(".")[-1] == "xls":
+        wb_tmp = open_xls_as_xlsx(file)
+    elif file.split(".")[-1] == "csv":
+        wb_tmp = open_csv_as_xlsx(file)
+    else:
+        wb_tmp = load_workbook(file)
+    ws_name = wb_tmp.sheetnames[0]
+    ws_tmp = wb_tmp[ws_name]
+    data += get_data(ws_tmp, column_map)
     return data
 
 
 def create_attach_report(files: list, save_directory: str, filename="FileAlyans"):
     wb = Workbook()
     ws = wb.active
-    data = get_files_data(files, column_map_attach)
-    for i, r in enumerate(data):
-        if i != 0:
-            ws.append(r + codes["alyans1"] + ids["alyans_attach"])
-        else:
-            ws.append(r)
-    for i, r in enumerate(data):
-        if i != 0:
-            ws.append(r + codes["alyans2"] + ids["alyans_attach"])
+    ws.append(header)
+    for file in files:
+        data = get_files_data(file, column_map_attach)
+        for r in data:
+            ws.append(r + codes[get_number(file.split("/")[-1])] + ids["alyans_attach"])
     fit_columns_width(ws)
     wb.save(os.path.join(save_directory, filename + ".xlsx"))
 
@@ -90,15 +95,11 @@ def create_attach_report(files: list, save_directory: str, filename="FileAlyans"
 def create_detach_report(files: list, save_directory: str, filename="FileAlyans"):
     wb = Workbook()
     ws = wb.active
-    data = get_files_data(files, column_map_detach)
-    for i, r in enumerate(data):
-        if i != 0:
-            ws.append(r + codes["alyans1"] + ids["alyans_detach"])
-        else:
-            ws.append(r)
-    for i, r in enumerate(data):
-        if i != 0:
-            ws.append(r + codes["alyans2"] + ids["alyans_detach"])
+    ws.append(header)
+    for file in files:
+        data = get_files_data(file, column_map_detach)
+        for r in data:
+            ws.append(r + codes[get_number(file.split("/")[-1])] + ids["alyans_detach"])
     fit_columns_width(ws)
     wb.save(os.path.join(save_directory, filename + ".xlsx"))
 
@@ -106,6 +107,7 @@ def create_detach_report(files: list, save_directory: str, filename="FileAlyans"
 if __name__ == '__main__':
     create_attach_report(
         [
-            "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/??_2021.02.03_1492_????????????.csv",
+            "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/??_2021.02.08_1492_???????????.csv",
+            "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/??_2021.02.08_10062_???????????.csv"
         ],
         "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test")
