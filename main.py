@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 from openpyxl.utils.exceptions import InvalidFileException
-from reporter.exceptions import UnsupportedNameLength
+from reporter.exceptions import UnsupportedNameLength, UnrecognisedType
 from reporter import renessans, alyans, ingossrah
 
 sg.theme("Purple")
@@ -43,8 +43,10 @@ while True:
             sg.popup("Ошибка", "Дата открепления не распознана")
         except InvalidFileException:
             sg.popup_error("Неверный формат файла.", "\nПоддерживаются только .xlsx,.xlsm,.xltx,.xltm,.xls")
-        except:
-            sg.popup_error("Ошибка", "Неизвестная ошибка")
+        except UnrecognisedType as e:
+            sg.popup_error(e.expression, e.message)
+        except Exception as e:
+            sg.popup_error("Неизвестная ошибка", "{0} {1}".format(str(e.__class__), e.args))
     elif event == 'Создать прикрепление':
         try:
             if values["-FILES-"] == "":
@@ -66,6 +68,8 @@ while True:
             sg.popup_error("Неверный формат файла.", "\nПоддерживаются только .xlsx,.xlsm,.xltx,.xltm,.xls")
         except UnsupportedNameLength as e:
             sg.popup_error(e.expression, e.message)
-        except:
-            sg.popup_error("Ошибка", "Неизвестная ошибка")
+        except UnrecognisedType as e:
+            sg.popup_error(e.expression, e.message)
+        except Exception as e:
+            sg.popup_error("Неизвестная ошибка", "{0} {1}".format(str(e.__class__), e.args))
 window.close()

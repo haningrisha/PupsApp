@@ -1,6 +1,7 @@
 from openpyxl import load_workbook, Workbook
 from reporter.utils import open_xls_as_xlsx, open_csv_as_xlsx, fit_columns_width
 import os
+from reporter.exceptions import UnrecognisedType
 from reporter.config import header, codes, ids
 
 target = ["ФИО", "Номер полиса", "Дата начала обслуживания", "Дата окончания обслуживания", "Программа обслуживания",
@@ -126,7 +127,9 @@ def get_files_data(file, attach=False):
         else:
             data += get_data_kdp4(ws_tmp, column_map_detach_kdp4)
     else:
-        raise ValueError
+        raise UnrecognisedType(expression="Нераспознанный тип файла Ингосстрах",
+                               message="Найденный тип: {0}\n"
+                                        "Имя файла: {1}".format(file_type, file.split("/")[-1]))
     return data
 
 

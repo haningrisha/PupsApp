@@ -2,7 +2,7 @@ from openpyxl import load_workbook, Workbook
 from reporter.utils import open_xls_as_xlsx, open_csv_as_xlsx, fit_columns_width
 import os
 from reporter.config import header, codes, ids
-from reporter.exceptions import UnsupportedNameLength
+from reporter.exceptions import UnsupportedNameLength, UnrecognisedType
 
 target = ["ФИО", "Номер полиса", "Дата начала обслуживания", "Дата окончания обслуживания", "Программа обслуживания",
           "Дата рождения", "Страхователь", "Дата отмены"]
@@ -32,7 +32,7 @@ def format_names(names, file_name):
             sec_name.append(name_array[3])
         else:
             raise UnsupportedNameLength("Ошибка имени", "Неподдерживаемый формат имени '{0}' в {1} строке  в файле {2}"
-                                        .format(name, i+1, file_name))
+                                        .format(name, i + 1, file_name))
     return {"SURNAME": surname, "FIRST_NAME": first_name, "SEC_NAME": sec_name}
 
 
@@ -42,7 +42,7 @@ def get_data(ws, column_map, file_name):
         for i, cell in enumerate(row):
             column_name = cell.value
             if column_name in target:
-                column = [row[0].value for row in ws.iter_rows(min_row=2, min_col=i+1, max_col=i+1)]
+                column = [row[0].value for row in ws.iter_rows(min_row=2, min_col=i + 1, max_col=i + 1)]
                 data.update({column_map.get(column_name, column_name): column})
     names = data.pop("ФИО")
     data.update(format_names(names, file_name))
@@ -58,13 +58,17 @@ def get_data(ws, column_map, file_name):
 
 
 def get_number(file_name):
-    number = file_name.split("_")[2]
+    number = file_name.split("_")
+    if len(number) < 3:
+        raise UnrecognisedType("Нераспознанный тип", "Имя файла: {0}".format(file_name))
+    number = number[2]
     if number == '1492':
         return "alyans1"
     elif number == '10062':
         return "alyans2"
     else:
-        raise ValueError
+        raise UnrecognisedType("Нераспознанный тип", "Найденный тип: {0}\n"
+                                                     "Имя файла: {1}".format(number, file_name))
 
 
 def get_files_data(file, column_map):
@@ -86,9 +90,10 @@ def create_attach_report(files: list, save_directory: str, filename="FileAlyans"
     ws = wb.active
     ws.append(header)
     for file in files:
+        number = get_number(file.split("/")[-1])
         data = get_files_data(file, column_map_attach)
         for r in data:
-            ws.append(r + codes[get_number(file.split("/")[-1])] + ids["alyans_attach"])
+            ws.append(r + codes[number] + ids["alyans_attach"])
     fit_columns_width(ws)
     wb.save(os.path.join(save_directory, filename + ".xlsx"))
 
@@ -98,9 +103,10 @@ def create_detach_report(files: list, save_directory: str, filename="FileAlyans"
     ws = wb.active
     ws.append(header)
     for file in files:
+        number = get_number(file.split("/")[-1])
         data = get_files_data(file, column_map_detach)
         for r in data:
-            ws.append(r + codes[get_number(file.split("/")[-1])] + ids["alyans_detach"])
+            ws.append(r + codes[number] + ids["alyans_detach"])
     fit_columns_width(ws)
     wb.save(os.path.join(save_directory, filename + ".xlsx"))
 
