@@ -2,7 +2,6 @@ from openpyxl import load_workbook, Workbook
 from reporter.utils import open_xls_as_xlsx, open_csv_as_xlsx, fit_columns_width
 import os
 from reporter.config import header, codes, ids
-from reporter.exceptions import UnsupportedNameLength
 
 target = ["ФИО", "Номер полиса", "Дата начала обслуживания", "Дата окончания обслуживания", "Программа обслуживания",
           "Дата рождения", "Страхователь", "Дата отмены"]

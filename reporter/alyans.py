@@ -16,26 +16,27 @@ column_map_detach = {
 }
 
 
-def format_names(names):
+def format_names(names, file_name):
     surname = []
     first_name = []
     sec_name = []
     for i, name in enumerate(names):
-        name = name.split(" ")
-        if len(name) == 3:
-            surname.append(name[0])
-            first_name.append(name[1])
-            sec_name.append(name[2])
-        elif len(name) == 4:
-            surname.append(name[0] + name[1])
-            first_name.append(name[2])
-            sec_name.append(name[3])
+        name_array = name.split(" ")
+        if len(name_array) == 3:
+            surname.append(name_array[0])
+            first_name.append(name_array[1])
+            sec_name.append(name_array[2])
+        elif len(name_array) == 4:
+            surname.append(name_array[0] + name_array[1])
+            first_name.append(name_array[2])
+            sec_name.append(name_array[3])
         else:
-            raise UnsupportedNameLength("Ошибка имени", "Неподдерживаемый формат имени в {0} ряду".format(i))
+            raise UnsupportedNameLength("Ошибка имени", "Неподдерживаемый формат имени '{0}' в {1} строке  в файле {2}"
+                                        .format(name, i+1, file_name))
     return {"SURNAME": surname, "FIRST_NAME": first_name, "SEC_NAME": sec_name}
 
 
-def get_data(ws, column_map):
+def get_data(ws, column_map, file_name):
     data = {}
     for row in ws.iter_rows(max_row=1):
         for i, cell in enumerate(row):
@@ -44,7 +45,7 @@ def get_data(ws, column_map):
                 column = [row[0].value for row in ws.iter_rows(min_row=2, min_col=i+1, max_col=i+1)]
                 data.update({column_map.get(column_name, column_name): column})
     names = data.pop("ФИО")
-    data.update(format_names(names))
+    data.update(format_names(names, file_name))
     formatted_data = [[cell] for cell in data.get(header[0])]
     for head in header[1:8]:
         column = data.get(head)
@@ -76,7 +77,7 @@ def get_files_data(file, column_map):
         wb_tmp = load_workbook(file)
     ws_name = wb_tmp.sheetnames[0]
     ws_tmp = wb_tmp[ws_name]
-    data += get_data(ws_tmp, column_map)
+    data += get_data(ws_tmp, column_map, file.split("/")[-1])
     return data
 
 
