@@ -1,7 +1,6 @@
-from openpyxl import load_workbook, Workbook
-from reporter.utils import open_xls_as_xlsx, fit_columns_width, format_date
-import os
-from reporter.config import header, codes, ids
+from openpyxl import load_workbook
+from reporter.utils import open_xls_as_xlsx
+from reporter.config import codes, ids
 import re
 import datetime
 
@@ -38,10 +37,8 @@ def get_attach_data(ws):
     return data
 
 
-def create_detach_report(files: list, save_directory: str, filename="File"):
-    wb = Workbook()
-    ws = wb.active
-    data = [header]
+def create_detach_report(files: list):
+    data = []
     for file in files:
         if file.split(".")[-1] == "xls":
             wb_tmp = open_xls_as_xlsx(file)
@@ -50,26 +47,18 @@ def create_detach_report(files: list, save_directory: str, filename="File"):
         ws_name = wb_tmp.sheetnames[0]
         ws_tmp = wb_tmp[ws_name]
         data += get_detach_data(ws_tmp)
+    for r in data:
+        r.insert(5, None)
+        r.insert(5, None)
+    data1 = [r + codes["renessans2"] + ids["renessans_detach"] for r in data]
     for i, r in enumerate(data):
-        if i != 0:
-            r.insert(5, None)
-            r.insert(5, None)
-            ws.append(r + codes["renessans1"] + ids["renessans_detach"])
-        else:
-            ws.append(r)
-    for i, r in enumerate(data):
-        if i != 0:
-            ws.append(r + codes["renessans2"] + ids["renessans_detach"])
-    format_date(ws, 4)
-    format_date(ws, 8)
-    fit_columns_width(ws)
-    wb.save(os.path.join(save_directory, filename + ".xlsx"))
+        data[i] = r + codes["renessans1"] + ids["renessans_detach"]
+    data += data1
+    return data
 
 
-def create_attach_report(files: list, save_directory: str, filename="FileAttach"):
-    wb = Workbook()
-    ws = wb.active
-    data = [header]
+def create_attach_report(files: list):
+    data = []
     for file in files:
         if file.split(".")[-1] == "xls":
             wb_tmp = open_xls_as_xlsx(file)
@@ -78,20 +67,13 @@ def create_attach_report(files: list, save_directory: str, filename="FileAttach"
         ws_name = wb_tmp.sheetnames[0]
         ws_tmp = wb_tmp[ws_name]
         data += get_attach_data(ws_tmp)
+    for r in data:
+        r.insert(8, None)
+    data1 = [r + codes["renessans2"] + ids["renessans_attach"] for r in data]
     for i, r in enumerate(data):
-        if i != 0:
-            r.insert(8, None)
-            ws.append(r + codes["renessans1"] + ids["renessans_attach"])
-        else:
-            ws.append(r)
-    for i, r in enumerate(data):
-        if i != 0:
-            ws.append(r + codes["renessans2"] + ids["renessans_attach"])
-    format_date(ws, 4)
-    format_date(ws, 6)
-    format_date(ws, 7)
-    fit_columns_width(ws)
-    wb.save(os.path.join(save_directory, filename + ".xlsx"))
+        data[i] = r + codes["renessans1"] + ids["renessans_attach"]
+    data += data1
+    return data
 
 
 if __name__ == '__main__':
@@ -99,12 +81,10 @@ if __name__ == '__main__':
         [
             "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/002_1060_001???35890520?_3_????_01_02_2021.xls",
             "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/002_1060_001???35719520?_19_????_03_02_2021.xlsx"
-        ],
-        "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test")
+        ]
+    )
     create_attach_report(
         [
-            "/Users/grigorijhanin/Documents/ТеорМех/динамика пупс/angle.png",
             "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/002_1682_001???35682620?_79_?????_27_01_2021 (1).xls"
-        ],
-        "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test"
+        ]
     )

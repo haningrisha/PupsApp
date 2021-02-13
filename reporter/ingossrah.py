@@ -1,6 +1,5 @@
-from openpyxl import load_workbook, Workbook
-from reporter.utils import open_xls_as_xlsx, open_csv_as_xlsx, fit_columns_width
-import os
+from openpyxl import load_workbook
+from reporter.utils import open_xls_as_xlsx, open_csv_as_xlsx
 from reporter.exceptions import UnrecognisedType
 from reporter.config import header, codes, ids
 
@@ -133,34 +132,22 @@ def get_files_data(file, attach=False):
     return data
 
 
-def create_attach_report(files: list, save_directory: str, filename="FileIngosstrahAttach"):
-    wb = Workbook()
-    ws = wb.active
-    data = [header]
+def create_attach_report(files: list):
+    data = []
     for file in files:
         data += get_files_data(file, True)
     for i, row in enumerate(data):
-        if i == 0:
-            ws.append(row)
-        else:
-            ws.append(row + codes["ingosstrah"] + ids["ingosstrah_attach"])
-    fit_columns_width(ws)
-    wb.save(os.path.join(save_directory, filename + ".xlsx"))
+        data[i] = row + codes["ingosstrah"] + ids["ingosstrah_attach"]
+    return data
 
 
-def create_detach_report(files: list, save_directory: str, filename="FileIngosstrahDetach"):
-    wb = Workbook()
-    ws = wb.active
-    data = [header]
+def create_detach_report(files: list):
+    data = []
     for file in files:
         data += get_files_data(file)
     for i, row in enumerate(data):
-        if i == 0:
-            ws.append(row)
-        else:
-            ws.append(row + codes["ingosstrah"] + ids["ingosstrah_detach"])
-    fit_columns_width(ws)
-    wb.save(os.path.join(save_directory, filename + ".xlsx"))
+        data[i] = row + codes["ingosstrah"] + ids["ingosstrah_detach"]
+    return data
 
 
 if __name__ == '__main__':
@@ -168,11 +155,10 @@ if __name__ == '__main__':
         [
             "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/_04_02_2021_11_17_55_111872_FULLRISK.XLS",
             "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/_04_02_2021_11_34_33_978666_KDP4.XLS"
-        ],
-        "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test")
+        ]
+    )
     create_detach_report(
         [
             "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/_04_02_2021_11_26_38_978666_KDP4.XLS"
-        ],
-        "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test"
+        ]
     )

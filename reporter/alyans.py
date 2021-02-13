@@ -1,6 +1,5 @@
-from openpyxl import load_workbook, Workbook
-from reporter.utils import open_xls_as_xlsx, open_csv_as_xlsx, fit_columns_width
-import os
+from openpyxl import load_workbook
+from reporter.utils import open_xls_as_xlsx, open_csv_as_xlsx
 from reporter.config import header, codes, ids
 from reporter.exceptions import UnsupportedNameLength, UnrecognisedType
 
@@ -85,36 +84,32 @@ def get_files_data(file, column_map):
     return data
 
 
-def create_attach_report(files: list, save_directory: str, filename="FileAlyans"):
-    wb = Workbook()
-    ws = wb.active
-    ws.append(header)
+def create_attach_report(files: list):
+    data = []
     for file in files:
         number = get_number(file.split("/")[-1])
-        data = get_files_data(file, column_map_attach)
-        for r in data:
-            ws.append(r + codes[number] + ids["alyans_attach"])
-    fit_columns_width(ws)
-    wb.save(os.path.join(save_directory, filename + ".xlsx"))
+        data1 = get_files_data(file, column_map_attach)
+        for i, r in enumerate(data1):
+            data1[i] = r + codes[number] + ids["alyans_attach"]
+        data += data1
+    return data
 
 
-def create_detach_report(files: list, save_directory: str, filename="FileAlyans"):
-    wb = Workbook()
-    ws = wb.active
-    ws.append(header)
+def create_detach_report(files: list):
+    data = []
     for file in files:
         number = get_number(file.split("/")[-1])
-        data = get_files_data(file, column_map_detach)
-        for r in data:
-            ws.append(r + codes[number] + ids["alyans_detach"])
-    fit_columns_width(ws)
-    wb.save(os.path.join(save_directory, filename + ".xlsx"))
+        data1 = get_files_data(file, column_map_detach)
+        for i, r in enumerate(data1):
+            data1[i] = r + codes[number] + ids["alyans_detach"]
+        data += data1
+    return data
 
 
 if __name__ == '__main__':
-    create_attach_report(
+    data = create_attach_report(
         [
             "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/??_2021.02.08_1492_???????????.csv",
             "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/??_2021.02.08_10062_???????????.csv"
-        ],
-        "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test")
+        ]
+    )
