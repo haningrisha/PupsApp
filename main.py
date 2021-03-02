@@ -65,7 +65,6 @@ while True:
             sg.popup_error("Неверный формат файла.", "\nПоддерживаются только .xlsx,.xlsm,.xltx,.xltm,.xls")
         except UnrecognisedType as e:
             sg.popup_error(e.expression, e.message)
-            sg.popup_error("Неверный формат файла.", "\nПоддерживаются только .xlsx,.xlsm,.xltx,.xltm,.xls")
         except UnsupportedNameLength as e:
             sg.popup_error(e.expression, e.message)
         except Exception as e:
