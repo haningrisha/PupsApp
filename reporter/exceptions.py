@@ -14,3 +14,9 @@ class UnsupportedRenCode(Exception):
     def __init__(self, expression, message):
         self.expression = expression
         self.message = message
+
+
+class UnsupportedSogazCode(Exception):
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message

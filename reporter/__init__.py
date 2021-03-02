@@ -1,5 +1,5 @@
 from reporter.config import header
-from reporter import renessans, alyans, ingossrah
+from reporter import renessans, alyans, ingossrah, sogaz
 from openpyxl import Workbook
 import os
 from reporter.utils import fit_columns_width

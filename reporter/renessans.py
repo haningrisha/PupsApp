@@ -4,7 +4,6 @@ from reporter.config import codes, ids
 from reporter.exceptions import UnsupportedRenCode
 import re
 import datetime
-from openpyxl import Workbook
 
 target = ["Фамилия", "Имя", "Отчество", "Дата рождения", "Номер полиса"]
 
