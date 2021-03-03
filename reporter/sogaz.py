@@ -1,7 +1,12 @@
 from openpyxl import load_workbook
 from reporter.utils import open_xls_as_xlsx
 from reporter.exceptions import UnsupportedSogazCode
+from datetime import datetime
 
+
+def str_to_date(dates):
+    dates = [datetime.strptime(date, "%d.%m.%Y") for date in dates]
+    return dates
 
 def sum_list(program):
     s = []
@@ -64,11 +69,13 @@ def get_attach_data(ws, file):
         if "изменение" in list_type:
             codes = get_code(row[10], file)
             for code in codes:
-                data_formatted.append(row[0:5] + row[8:10] + [None] + code)
+                data_formatted.append(row[0:3] + str_to_date([row[3]]) + [row[4]] + str_to_date(row[8:10]) + [None] +
+                                      code)
         elif "прикрепление" in list_type:
             codes = get_code(row[12], file)
             for code in codes:
-                data_formatted.append(row[0:4] + [row[9]] + row[10:12] + [None] + code)
+                data_formatted.append(row[0:3] + str_to_date([row[3]]) + [row[9]] + str_to_date(row[10:12]) + [None] +
+                                      code)
     return data_formatted
 
 
@@ -78,7 +85,8 @@ def get_detach_data(ws, file):
     for row in data:
         codes = get_code(row[6], file)
         for code in codes:
-            data_formatted.append(row[0:5] + [None, None] + [row[5]] + code[0:2] + [2])
+            data_formatted.append(row[0:3] + str_to_date([row[3]]) + [row[4]] + [None, None] + str_to_date([row[5]]) +
+                                  code[0:2] + [2])
     return data_formatted
 
 
