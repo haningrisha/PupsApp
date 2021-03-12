@@ -1,22 +1,28 @@
-class UnsupportedNameLength(Exception):
+class PupsAppException(Exception):
     def __init__(self, expression, message):
         self.expression = expression
         self.message = message
 
 
-class UnrecognisedType(Exception):
+class UnsupportedNameLength(PupsAppException):
     def __init__(self, expression, message):
         self.expression = expression
         self.message = message
 
 
-class UnsupportedRenCode(Exception):
+class UnrecognisedType(PupsAppException):
     def __init__(self, expression, message):
         self.expression = expression
         self.message = message
 
 
-class UnsupportedSogazCode(Exception):
+class UnsupportedRenCode(PupsAppException):
+    def __init__(self, expression, message):
+        self.expression = expression
+        self.message = message
+
+
+class UnsupportedSogazCode(PupsAppException):
     def __init__(self, expression, message):
         self.expression = expression
         self.message = message

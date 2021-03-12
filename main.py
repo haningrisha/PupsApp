@@ -1,6 +1,6 @@
 import PySimpleGUI as sg
 from openpyxl.utils.exceptions import InvalidFileException
-from reporter.exceptions import UnsupportedNameLength, UnrecognisedType
+from reporter.exceptions import UnsupportedNameLength, UnrecognisedType, PupsAppException
 from reporter import renessans, alyans, ingossrah, sogaz, ReportChain, create_reports
 
 sg.theme("Purple")
@@ -75,6 +75,8 @@ while True:
         except UnrecognisedType as e:
             sg.popup_error(e.expression, e.message)
         except UnsupportedNameLength as e:
+            sg.popup_error(e.expression, e.message)
+        except PupsAppException as e:
             sg.popup_error(e.expression, e.message)
         except Exception as e:
             sg.popup_error("Неизвестная ошибка", "{0} {1}".format(str(e.__class__), e.args))
