@@ -8,6 +8,7 @@ def str_to_date(dates):
     dates = [datetime.strptime(date, "%d.%m.%Y") for date in dates]
     return dates
 
+
 def sum_list(program):
     s = []
     for i in program:
@@ -16,11 +17,12 @@ def sum_list(program):
 
 
 def get_code(program, file):
+    string_program = program
     program = program.split(';')
     program = sum_list([p.split(" ") for p in program])
     program = [p.lower() for p in program]
     program = sum_list([p.split("_") for p in program])
-    if {"\"аброссия\"", "аброссия"} & set(program):
+    if {"\"аброссия\"", "аброссия", "аб"} & set(program):
         code = [["АБС СТОМАТОЛОГИЯ Прямой доступ", "ДС№9 к 0618RP137 АБРОССИЯ", 1102]]
     elif "невское" in program:
         code = [["Невское ПКБ СОГАЗ", "ДС№10 к 0618RP137", 4001439]]
@@ -37,7 +39,8 @@ def get_code(program, file):
     elif "стоматология" in program:
         code = [["СОГАЗ СТОМАТОЛОГИЯ Прямой доступ ПК", "0618RР137 СТОМАТОЛОГИЯ ПРЯМОЙ ДОСТУП ПК", 1102]]
     else:
-        raise UnsupportedSogazCode("Код Согаз не распознан", "Не удалось распознать код в файле {0}".format(file))
+        raise UnsupportedSogazCode("Код Согаз не распознан", "Не удалось распознать код в файле {0} в "
+                                                             "строке {1}".format(file, string_program))
     return code
 
 
