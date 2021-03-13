@@ -1,7 +1,7 @@
 import PySimpleGUI as sg
 from openpyxl.utils.exceptions import InvalidFileException
 from reporter.exceptions import UnsupportedNameLength, UnrecognisedType, PupsAppException
-from reporter import renessans, alyans, ingossrah, sogaz, ReportChain, create_reports
+from reporter import renessans, alyans, ingossrah, sogaz, maks,ReportChain, create_reports
 
 sg.theme("Purple")
 
@@ -20,6 +20,10 @@ layout = [[sg.Text('Ренессанс', font="Bold")],
           [sg.Text('Согаз', font="Bold")],
           [sg.Text('Прикрепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="SoAttach", button_text="Выбрать")],
           [sg.Text('Открепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="SoDetach", button_text="Выбрать")],
+          [sg.HSeparator()],
+          [sg.Text('Макс', font="Bold")],
+          [sg.Text('Прикрепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="MaAttach", button_text="Выбрать")],
+          [sg.Text('Открепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="MaDetach", button_text="Выбрать")],
           [sg.HSeparator()],
           [sg.Text('Папка для сохранения', font="Bold")],
           [sg.Input(), sg.FolderBrowse(key="-FOLDER-", button_text="Выбрать")],
@@ -41,7 +45,8 @@ while True:
                 values["RenAttach"].split(";") + values["RenDetach"].split(";") + \
                 values["AlAttach"].split(";") + values["AlDetach"].split(";") + \
                 values["InAttach"].split(";") + values["InDetach"].split(";") + \
-                values["SoAttach"].split(";") + values["SoDetach"].split(";")
+                values["SoAttach"].split(";") + values["SoDetach"].split(";") + \
+                values["MaAttach"].split(";") + values["MaDetach"].split(";")
             all_files = [file for file in all_files if file != '']
             if len(all_files) == 0:
                 window['-OUTPUT-'].update('Файлы не выбраны', text_color="OrangeRed4")
@@ -66,6 +71,10 @@ while True:
                     report_chains.append(ReportChain(sogaz.create_detach_report, values["SoDetach"].split(";")))
                 if values["SoAttach"] != "":
                     report_chains.append(ReportChain(sogaz.create_attach_report, values["SoAttach"].split(";")))
+                if values["MaAttach"] != "":
+                    report_chains.append(ReportChain(maks.create_attach_report, values["MaAttach"].split(";")))
+                if values["MaDetach"] != "":
+                    report_chains.append(ReportChain(maks.create_detach_report, values["MaAttach"].split(";")))
                 create_reports(report_chains, values["-FOLDER-"], values["-FILENAME-"])
                 window['-OUTPUT-'].update('Файл создан', text_color="white")
         except (TypeError, ValueError):

@@ -3,8 +3,8 @@ from openpyxl import Workbook
 import csv
 
 
-def open_xls_as_xlsx(filename):
-    book = xlrd.open_workbook(filename)
+def open_xls_as_xlsx(filename, encoding=None):
+    book = xlrd.open_workbook(filename, encoding_override=encoding)
     index = 0
     sheet = book.sheet_by_index(index)
     book1 = Workbook()
