@@ -22,6 +22,7 @@ def get_code(program, file):
     program = sum_list([p.split(" ") for p in program])
     program = [p.lower() for p in program]
     program = sum_list([p.split("_") for p in program])
+    program = sum_list([p.split("\"") for p in program])
     if {"\"аброссия\"", "аброссия", "аб"} & set(program):
         code = [["АБС СТОМАТОЛОГИЯ Прямой доступ", "ДС№9 к 0618RP137 АБРОССИЯ", 1102]]
     elif "невское" in program:
