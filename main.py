@@ -74,7 +74,7 @@ while True:
                 if values["MaAttach"] != "":
                     report_chains.append(ReportChain(maks.create_attach_report, values["MaAttach"].split(";")))
                 if values["MaDetach"] != "":
-                    report_chains.append(ReportChain(maks.create_detach_report, values["MaAttach"].split(";")))
+                    report_chains.append(ReportChain(maks.create_detach_report, values["MaDetach"].split(";")))
                 create_reports(report_chains, values["-FOLDER-"], values["-FILENAME-"])
                 window['-OUTPUT-'].update('Файл создан', text_color="white")
         except (TypeError, ValueError):
