@@ -3,28 +3,26 @@ from reporter.utils import open_xls_as_xlsx, open_csv_as_xlsx
 
 
 class BaseInsurance:
-    def __init__(self, files, encoding=None):
-        self.files = files
-        self.encoding = encoding
+    def __init__(self):
         self.file = None
 
-    def create_attach_report(self):
-        data = []
-        for file in self.files:
-            self.file = file
-            data += self.get_attach(self.get_ws(file))
-        return data
-
-    def create_detach_report(self, files: list):
+    def create_attach_report(self, files: list, encoding=None):
         data = []
         for file in files:
             self.file = file
-            data += self.get_detach(self.get_ws(file))
+            data += self.get_attach(self.get_ws(file, encoding))
         return data
 
-    def get_ws(self, file):
+    def create_detach_report(self, files: list, encoding=None):
+        data = []
+        for file in files:
+            self.file = file
+            data += self.get_detach(self.get_ws(file, encoding))
+        return data
+
+    def get_ws(self, file, encoding):
         if file.split(".")[-1] in ["xls", "XLS"]:
-            wb_tmp = open_xls_as_xlsx(file, self.encoding)
+            wb_tmp = open_xls_as_xlsx(file, encoding)
         elif file.split(".")[-1] == "csv":
             wb_tmp = open_csv_as_xlsx(file)
         else:
