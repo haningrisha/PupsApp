@@ -1,7 +1,6 @@
-from openpyxl import load_workbook
-from reporter.utils import open_xls_as_xlsx, open_csv_as_xlsx
 from reporter.exceptions import UnrecognisedType
 from reporter.config import header, codes, ids
+from reporter.base import Report
 
 target = ["ФИО", "Номер полиса", "Дата начала обслуживания", "Дата окончания обслуживания", "Программа обслуживания",
           "Дата рождения", "Страхователь", "Дата отмены"]
@@ -52,113 +51,96 @@ column_map_detach_kdp4 = {
 }
 
 
-def format_data(data):
-    formatted_data = [[cell] for cell in data.get(header[0])]
-    for head in header[1:8]:
-        for i, row in enumerate(formatted_data):
-            column = data.get(head)
-            if column is not None:
-                row += [column[i]]
-            else:
-                row += [None]
-    return formatted_data
+class IngosstrahReport(Report):
+    def __init__(self, file, column_maps: dict, id_type):
+        super().__init__(file)
+        self.file_type = self.file.split(".")[0].split("_")[-1]
+        self.column_map = column_maps.get(self.file_type)
+        self.codes = codes["ingosstrah"]
+        self.ids = ids[id_type]
 
-
-def get_max_fullrisk(ws):
-    max_row = ws.max_row
-    for i, row in enumerate(ws.iter_rows(min_row=14)):
-        row = [cell.value for cell in row]
-        for y, cell in enumerate(row):
-            if cell in ["", None]:
-                row[y] = True
-            else:
-                row[y] = False
-        if all(row):
-            max_row = 13 + i
-            break
-    return max_row
-
-
-def get_data_fullrisk(ws, column_map):
-    data = {}
-    max_row = get_max_fullrisk(ws)
-    for row in ws.iter_rows(min_row=13, max_row=13):
-        for cell in row:
-            if cell.value in column_map.keys():
-                column = []
-                for column_row in ws.iter_rows(min_row=14, min_col=cell.column, max_col=cell.column, max_row=max_row):
-                    column.append(column_row[0].value)
-                data.update({column_map[cell.value]: column})
-    return format_data(data)
-
-
-def get_data_kdp4(ws, column_map):
-    data = {}
-    for row in ws.iter_rows(min_row=10, max_row=10):
-        for cell in row:
-            if cell.value in column_map.keys():
-                column = []
-                for column_row in ws.iter_rows(min_row=11, min_col=cell.column, max_col=cell.column):
-                    column.append(column_row[0].value)
-                data.update({column_map[cell.value]: column})
-    return format_data(data)
-
-
-def get_files_data(file, attach=False):
-    data = []
-    if file.split(".")[-1] in ["xls", "XLS"]:
-        wb_tmp = open_xls_as_xlsx(file)
-    elif file.split(".")[-1] == "csv":
-        wb_tmp = open_csv_as_xlsx(file)
-    else:
-        wb_tmp = load_workbook(file)
-    ws_name = wb_tmp.sheetnames[0]
-    ws_tmp = wb_tmp[ws_name]
-    file_type = file.split(".")[0].split("_")[-1]
-    if file_type == "FULLRISK":
-        if attach:
-            data += get_data_fullrisk(ws_tmp, column_map_attach_fullrisk)
+    def get_data(self):
+        if self.file_type == "FULLRISK":
+            return self.get_data_fullrisk()
+        elif self.file_type == "KDP4":
+            return self.get_data_kdp4()
         else:
-            data += get_data_fullrisk(ws_tmp, column_map_detach_fullrisk)
-    elif file_type == "KDP4":
-        if attach:
-            data += get_data_kdp4(ws_tmp, column_map_attach_kdp4)
-        else:
-            data += get_data_kdp4(ws_tmp, column_map_detach_kdp4)
-    else:
-        raise UnrecognisedType(expression="Нераспознанный тип файла Ингосстрах",
-                               message="Найденный тип: {0}\n"
-                                        "Имя файла: {1}".format(file_type, file.split("/")[-1]))
-    return data
+            raise UnrecognisedType(expression="Нераспознанный тип файла Ингосстрах",
+                                   message="Найденный тип: {0}\n"
+                                           "Имя файла: {1}".format(self.file_type, self.file.split("/")[-1]))
+
+    def get_data_fullrisk(self):
+        data = {}
+        max_row = self.get_max_fullrisk()
+        for row in self.ws.iter_rows(min_row=13, max_row=13):
+            for cell in row:
+                if cell.value in self.column_map.keys():
+                    column = []
+                    for column_row in self.ws.iter_rows(min_row=14, min_col=cell.column, max_col=cell.column,
+                                                        max_row=max_row):
+                        column.append(column_row[0].value)
+                    data.update({self.column_map[cell.value]: column})
+        return self.format_data(data)
+
+    def get_data_kdp4(self):
+        data = {}
+        for row in self.ws.iter_rows(min_row=10, max_row=10):
+            for cell in row:
+                if cell.value in self.column_map.keys():
+                    column = []
+                    for column_row in self.ws.iter_rows(min_row=11, min_col=cell.column, max_col=cell.column):
+                        column.append(column_row[0].value)
+                    data.update({self.column_map[cell.value]: column})
+        return self.format_data(data)
+
+    def format_data(self, data):
+        formatted_data = [[cell] for cell in data.get(header[0])]
+        for head in header[1:8]:
+            for i, row in enumerate(formatted_data):
+                column = data.get(head)
+                if column is not None:
+                    row += [column[i]]
+                else:
+                    row += [None]
+        formatted_data = [row + self.codes + self.ids for row in formatted_data]
+        return formatted_data
+
+    def get_max_fullrisk(self):
+        max_row = self.ws.max_row
+        for i, row in enumerate(self.ws.iter_rows(min_row=14)):
+            row = [cell.value for cell in row]
+            for y, cell in enumerate(row):
+                if cell in ["", None]:
+                    row[y] = True
+                else:
+                    row[y] = False
+            if all(row):
+                max_row = 13 + i
+                break
+        return max_row
 
 
-def create_attach_report(files: list):
-    data = []
-    for file in files:
-        data += get_files_data(file, True)
-    for i, row in enumerate(data):
-        data[i] = row + codes["ingosstrah"] + ids["ingosstrah_attach"]
-    return data
+class IngosstrahAttach(IngosstrahReport):
+    def __init__(self, file):
+        super().__init__(file, {
+            "FULLRISK": column_map_attach_fullrisk,
+            "KDP4": column_map_attach_kdp4
+        },
+                         "ingosstrah_attach")
 
 
-def create_detach_report(files: list):
-    data = []
-    for file in files:
-        data += get_files_data(file)
-    for i, row in enumerate(data):
-        data[i] = row + codes["ingosstrah"] + ids["ingosstrah_detach"]
-    return data
+class IngosstrahDetach(IngosstrahReport):
+    def __init__(self, file):
+        super().__init__(file, {
+            "FULLRISK": column_map_detach_fullrisk,
+            "KDP4": column_map_detach_kdp4
+        },
+                         "ingosstrah_detach")
 
 
 if __name__ == '__main__':
-    create_attach_report(
-        [
-            "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/_04_02_2021_11_17_55_111872_FULLRISK.XLS",
-            "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/_04_02_2021_11_34_33_978666_KDP4.XLS"
-        ]
-    )
-    create_detach_report(
-        [
-            "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/_04_02_2021_11_26_38_978666_KDP4.XLS"
-        ]
-    )
+    attach = IngosstrahAttach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Ингосстрах Прикреп/_04_02_2021_11_17_55_111872_FULLRISK.XLS")
+    detach = IngosstrahDetach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Ингосстрах Откреп/_04_02_2021_11_26_38_978666_KDP4.XLS")
+    attach.get_data()
+    detach.get_data()
+

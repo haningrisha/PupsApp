@@ -1,38 +1,23 @@
 import PySimpleGUI as sg
 from openpyxl.utils.exceptions import InvalidFileException
 from reporter.exceptions import UnsupportedNameLength, UnrecognisedType, PupsAppException
-from reporter import renessans, alyans, ingossrah, sogaz, maks,ReportChain, create_reports
+from reporter import ReportChain, ReportGenerator
+import subprocess
 
 sg.theme("Purple")
 
-layout = [[sg.Text('Ренессанс', font="Bold")],
-          [sg.Text('Прикрепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="RenAttach", button_text="Выбрать")],
-          [sg.Text('Открепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="RenDetach", button_text="Выбрать")],
-          [sg.HSeparator()],
-          [sg.Text('Альянс', font="Bold")],
-          [sg.Text('Прикрепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="AlAttach", button_text="Выбрать")],
-          [sg.Text('Открепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="AlDetach", button_text="Выбрать")],
-          [sg.HSeparator()],
-          [sg.Text('Ингосстрах', font="Bold")],
-          [sg.Text('Прикрепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="InAttach", button_text="Выбрать")],
-          [sg.Text('Открепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="InDetach", button_text="Выбрать")],
-          [sg.HSeparator()],
-          [sg.Text('Согаз', font="Bold")],
-          [sg.Text('Прикрепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="SoAttach", button_text="Выбрать")],
-          [sg.Text('Открепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="SoDetach", button_text="Выбрать")],
-          [sg.HSeparator()],
-          [sg.Text('Макс', font="Bold")],
-          [sg.Text('Прикрепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="MaAttach", button_text="Выбрать")],
-          [sg.Text('Открепления', size=(12, 1)), sg.Input(), sg.FilesBrowse(key="MaDetach", button_text="Выбрать")],
-          [sg.HSeparator()],
-          [sg.Text('Папка для сохранения', font="Bold")],
+layout = [[sg.Text('Папка со страховыми', font="Bold")],
+          [sg.Input(), sg.FolderBrowse(key="path", button_text="Выбрать")],
+          [sg.Text('Папка для сохранения (не обязательно)', font="Bold")],
           [sg.Input(), sg.FolderBrowse(key="-FOLDER-", button_text="Выбрать")],
           [sg.Text('Имя файла для сохранения', font="Bold")],
           [sg.Input(key="-FILENAME-", default_text="report")],
-          [sg.Button("Создать"), sg.Button("Отмена")],
+          [sg.Button("Создать"), sg.Button("Отмена"), sg.Button("Показать в Finder", visible=False)],
           [sg.Text(key='-OUTPUT-', size=(60, 2))]
           ]
 window = sg.Window('PupsApp', layout)
+
+saved_path = None
 
 while True:
     event, values = window.read()
@@ -40,42 +25,18 @@ while True:
         break
     elif event == 'Создать':
         try:
-            report_chains = []
-            all_files = \
-                values["RenAttach"].split(";") + values["RenDetach"].split(";") + \
-                values["AlAttach"].split(";") + values["AlDetach"].split(";") + \
-                values["InAttach"].split(";") + values["InDetach"].split(";") + \
-                values["SoAttach"].split(";") + values["SoDetach"].split(";") + \
-                values["MaAttach"].split(";") + values["MaDetach"].split(";")
-            all_files = [file for file in all_files if file != '']
-            if len(all_files) == 0:
+            if len(values["path"]) == 0:
                 window['-OUTPUT-'].update('Файлы не выбраны', text_color="OrangeRed4")
-            elif values["-FOLDER-"] == "":
-                window['-OUTPUT-'].update('Папка не выбрана', text_color="OrangeRed4")
             elif values["-FILENAME-"] == "":
                 window['-OUTPUT-'].update('Имя файла не выбрано', text_color="OrangeRed4")
             else:
-                if values["RenDetach"] != "":
-                    report_chains.append(ReportChain(renessans.create_detach_report, values["RenDetach"].split(";")))
-                if values["RenAttach"] != "":
-                    report_chains.append(ReportChain(renessans.create_attach_report, values["RenAttach"].split(";")))
-                if values["AlDetach"] != "":
-                    report_chains.append(ReportChain(alyans.create_detach_report, values["AlDetach"].split(";")))
-                if values["AlAttach"] != "":
-                    report_chains.append(ReportChain(alyans.create_attach_report, values["AlAttach"].split(";")))
-                if values["InDetach"] != "":
-                    report_chains.append(ReportChain(ingossrah.create_detach_report, values["InDetach"].split(";")))
-                if values["InAttach"] != "":
-                    report_chains.append(ReportChain(ingossrah.create_attach_report, values["InAttach"].split(";")))
-                if values["SoDetach"] != "":
-                    report_chains.append(ReportChain(sogaz.create_detach_report, values["SoDetach"].split(";")))
-                if values["SoAttach"] != "":
-                    report_chains.append(ReportChain(sogaz.create_attach_report, values["SoAttach"].split(";")))
-                if values["MaAttach"] != "":
-                    report_chains.append(ReportChain(maks.create_attach_report, values["MaAttach"].split(";")))
-                if values["MaDetach"] != "":
-                    report_chains.append(ReportChain(maks.create_detach_report, values["MaDetach"].split(";")))
-                create_reports(report_chains, values["-FOLDER-"], values["-FILENAME-"])
+                if values["-FOLDER-"] == "":
+                    values["-FOLDER-"] = values["path"]
+                chain = ReportChain()
+                chain.add_from_folder(values["path"])
+                generator = ReportGenerator(chain, values["-FOLDER-"], values["-FILENAME-"])
+                saved_path = generator.generate()
+                window["Показать в Finder"].update(visible=True)
                 window['-OUTPUT-'].update('Файл создан', text_color="white")
         except (TypeError, ValueError):
             sg.popup("Ошибка", "Дата открепления не распознана")
@@ -89,4 +50,6 @@ while True:
             sg.popup_error(e.expression, e.message)
         except Exception as e:
             sg.popup_error("Неизвестная ошибка", "{0} {1}".format(str(e.__class__), e.args))
+    elif event == "Показать в Finder":
+        subprocess.call(["open", "-R", saved_path])
 window.close()
