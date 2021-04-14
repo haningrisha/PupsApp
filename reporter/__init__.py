@@ -17,8 +17,8 @@ renessans_folders = ["рен", "ренессанс"]
 ingosstrah_folders = ["ингосстрах", "ингос"]
 sogaz_folders = ["согаз"]
 maks_folders = ["макс"]
-detach_folders = ["откреп", "открепление", "открепления", "detach", "detachment", "detachments"]
-attach_folders = ["прикреп", "прикрепление", "прикрепления", "attach", "attachment", "attachments"]
+detach_folders = ["откреп", "откр", "открепление", "открепления", "detach", "detachment", "detachments"]
+attach_folders = ["прикреп", "прикр", "прикрепление", "прикрепления", "attach", "attachment", "attachments"]
 
 
 class ReportChain:
@@ -82,34 +82,44 @@ class ReportChain:
         return [join(folder, f) for f in only_dirs if f.lower() in attach_folders]
 
     def add_alyans_attach(self, file):
-        self.reports.append(AlyansAttach(file))
+        if AlyansAttach.is_reportable(file):
+            self.reports.append(AlyansAttach(file))
 
     def add_alyans_detach(self, file):
-        self.reports.append(AlyansDetach(file))
+        if AlyansDetach.is_reportable(file):
+            self.reports.append(AlyansDetach(file))
 
     def add_sogaz_attach(self, file):
-        self.reports.append(SogazAttach(file))
+        if SogazAttach.is_reportable(file):
+            self.reports.append(SogazAttach(file))
 
     def add_sogaz_detach(self, file):
-        self.reports.append(SogazDetach(file))
+        if SogazDetach.is_reportable(file):
+            self.reports.append(SogazDetach(file))
 
     def add_ingosstrah_attach(self, file):
-        self.reports.append(IngosstrahAttach(file))
+        if IngosstrahAttach.is_reportable(file):
+            self.reports.append(IngosstrahAttach(file))
 
     def add_ingosstrah_detach(self, file):
-        self.reports.append(IngosstrahDetach(file))
+        if IngosstrahDetach.is_reportable(file):
+            self.reports.append(IngosstrahDetach(file))
 
     def add_renessans_attach(self, file):
-        self.reports.append(RenessansAttach(file))
+        if RenessansAttach.is_reportable(file):
+            self.reports.append(RenessansAttach(file))
 
     def add_renessans_detach(self, file):
-        self.reports.append(RenessansDetach(file))
+        if RenessansDetach.is_reportable(file):
+            self.reports.append(RenessansDetach(file))
 
     def add_maks_attach(self, file):
-        self.reports.append(MaksAttach(file))
+        if MaksAttach.is_reportable(file):
+            self.reports.append(MaksAttach(file))
 
     def add_maks_detach(self, file):
-        self.reports.append(MaksDetach(file))
+        if MaksDetach.is_reportable(file):
+            self.reports.append(MaksDetach(file))
 
 
 class ReportGenerator:

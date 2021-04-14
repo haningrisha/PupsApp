@@ -21,3 +21,8 @@ class Report:
         ws_name = wb_tmp.sheetnames[0]
         ws_tmp = wb_tmp[ws_name]
         return ws_tmp
+
+    @staticmethod
+    def is_reportable(file):
+        return file.split(".")[-1] in ["xls", "XLS", "csv", "xlsx"]
+
