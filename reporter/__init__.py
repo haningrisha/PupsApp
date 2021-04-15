@@ -10,13 +10,14 @@ from reporter.renessans import RenessansAttach, RenessansDetach
 from reporter.sogaz import SogazAttach, SogazDetach
 from reporter.ingossrah import IngosstrahAttach, IngosstrahDetach
 from reporter.maks import MaksAttach, MaksDetach
-
+from reporter.rosgosstrah import RosgosstrahFabric, RosgosstrahReport, RosgosstrahDetach, RosgosstrahAttach
 
 alyans_folders = ["альянс"]
 renessans_folders = ["рен", "ренессанс"]
 ingosstrah_folders = ["ингосстрах", "ингос"]
 sogaz_folders = ["согаз"]
 maks_folders = ["макс"]
+rosgosstrah_folders = ["росгосстрах", "россгосстрах"]
 detach_folders = ["откреп", "откр", "открепление", "открепления", "detach", "detachment", "detachments"]
 attach_folders = ["прикреп", "прикр", "прикрепление", "прикрепления", "attach", "attachment", "attachments"]
 
@@ -32,6 +33,7 @@ class ReportChain:
         [self.add_ingosstrah(join(folder, f)) for f in only_dirs if f.lower() in ingosstrah_folders]
         [self.add_sogaz(join(folder, f)) for f in only_dirs if f.lower() in sogaz_folders]
         [self.add_maks(join(folder, f)) for f in only_dirs if f.lower() in maks_folders]
+        [self.add_rosgosstrah(join(folder, f)) for f in only_dirs if f.lower() in rosgosstrah_folders]
 
     def add_alyans(self, folder):
         detach = self.get_detach(folder)
@@ -72,6 +74,18 @@ class ReportChain:
             [self.add_maks_attach(join(a, f)) for f in listdir(a) if isfile(join(a, f))]
         for d in detach:
             [self.add_maks_detach(join(d, f)) for f in listdir(d) if isfile(join(d, f))]
+
+    def add_rosgosstrah(self, folder):
+        only_files = [join(folder, file) for file in listdir(folder) if isfile(join(folder, file))]
+        for file in only_files:
+            if RosgosstrahReport.is_reportable(file):
+                self.reports.append(RosgosstrahFabric.create_report(file))
+        detach = self.get_detach(folder)
+        attach = self.get_attach(folder)
+        for a in attach:
+            [self.add_rosgosstrah_attach(join(a, f)) for f in listdir(a) if isfile(join(a, f))]
+        for d in detach:
+            [self.add_rosgosstrah_detach(join(d, f)) for f in listdir(d) if isfile(join(d, f))]
 
     def get_detach(self, folder):
         only_dirs = [f for f in listdir(folder) if isdir(join(folder, f))]
@@ -120,6 +134,14 @@ class ReportChain:
     def add_maks_detach(self, file):
         if MaksDetach.is_reportable(file):
             self.reports.append(MaksDetach(file))
+
+    def add_rosgosstrah_attach(self, file):
+        if RosgosstrahAttach.is_reportable(file):
+            self.reports.append(RosgosstrahAttach(file))
+
+    def add_rosgosstrah_detach(self, file):
+        if RosgosstrahDetach.is_reportable(file):
+            self.reports.append(RosgosstrahDetach(file))
 
 
 class ReportGenerator:
