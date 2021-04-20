@@ -44,9 +44,15 @@ class RosgosstrahReport(Report):
 
     def parse_type(self, type_cell: str):
         if "АО \"Поликлинический комплекс\"" in type_cell:
-            return ["РГС ПРЯМОЙ ДОСТУП", "РГС Прямой доступ 665", 4001481]
+            return {
+                "attach": ["РГС ПРЯМОЙ ДОСТУП", "РГС Прямой доступ 665", 4001481],
+                "detach": ["РГС ПРЯМОЙ ДОСТУП", "РГС Прямой доступ 665", 2]
+                    }
         elif "АО \"Современные медицинские технологии\"" in type_cell:
-            return ["ДС Росгосстрах КДЦ", "РГС Прямой доступ 0002/СК", 4013625]
+            return {
+                "attach": ["ДС Росгосстрах КДЦ", "РГС Прямой доступ 0002/СК", 4001481],
+                "detach": ["ДС Росгосстрах КДЦ", "РГС Прямой доступ 0002/СК", 2],
+            }
         else:
             raise UnrecognisedType("Ошибка типа", f"Неподдреживаемый тип в файле {self.file}")
 
@@ -86,7 +92,7 @@ class RosgosstrahAttach(RosgosstrahReport):
                          row[6],
                          data_part["date"]["from"],
                          data_part["date"]["to"],
-                         None] + self.get_type())
+                         None] + self.get_type()["attach"])
         return data
 
     def get_type(self):
@@ -112,7 +118,7 @@ class RosgosstrahDetach(RosgosstrahReport):
                         row[4],
                          None,
                          None,
-                         data_part["date"]["cnl"]] + self.get_type())
+                         data_part["date"]["cnl"]] + self.get_type()["detach"])
         return data
 
     def get_type(self):
