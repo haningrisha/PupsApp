@@ -1,5 +1,5 @@
 from reporter.config import codes, ids
-from reporter.exceptions import UnsupportedRenCode
+from reporter.exceptions import UnsupportedRenCode, NoDateFound
 import re
 from reporter.base import Report
 import datetime
@@ -65,7 +65,10 @@ class RenessansDetach(RenessansReport):
 
     def get_date(self):
         text = self.ws.cell(14, 1).value
-        date = re.search('([0-2]\d|3[01]).(0\d|1[012]).(\d{4})', text).group()
+        date = re.search('([0-2]\d|3[01]).(0\d|1[012]).(\d{4})', text)
+        if date is None:
+            raise NoDateFound("14, 1", self.file)
+        date = date.group()
         date = datetime.datetime.strptime(date, '%d.%m.%Y')
         return date
 
