@@ -2,8 +2,8 @@ from reporter.base import Report
 
 
 class MaksReport(Report):
-    def __init__(self, file):
-        super().__init__(file, encoding="windows-1251")
+    def __init__(self, file_path):
+        super().__init__(file_path, encoding="windows-1251")
 
 
 class MaksAttach(MaksReport):

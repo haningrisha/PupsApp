@@ -52,9 +52,9 @@ column_map_detach_kdp4 = {
 
 
 class IngosstrahReport(Report):
-    def __init__(self, file, column_maps: dict, id_type):
-        super().__init__(file)
-        self.file_type = self.file.split(".")[0].split("_")[-1]
+    def __init__(self, file_path, column_maps: dict, id_type):
+        super().__init__(file_path)
+        self.file_type = self.file_path.split(".")[0].split("_")[-1]
         self.column_map = column_maps.get(self.file_type)
         self.codes = codes["ingosstrah"]
         self.ids = ids[id_type]
@@ -67,7 +67,7 @@ class IngosstrahReport(Report):
         else:
             raise UnrecognisedType(expression="Нераспознанный тип файла Ингосстрах",
                                    message="Найденный тип: {0}\n"
-                                           "Имя файла: {1}".format(self.file_type, self.file.split("/")[-1]))
+                                           "Имя файла: {1}".format(self.file_type, self.file_path.split("/")[-1]))
 
     def get_data_fullrisk(self):
         data = {}
@@ -121,8 +121,8 @@ class IngosstrahReport(Report):
 
 
 class IngosstrahAttach(IngosstrahReport):
-    def __init__(self, file):
-        super().__init__(file, {
+    def __init__(self, file_path):
+        super().__init__(file_path, {
             "FULLRISK": column_map_attach_fullrisk,
             "KDP4": column_map_attach_kdp4
         },
@@ -130,8 +130,8 @@ class IngosstrahAttach(IngosstrahReport):
 
 
 class IngosstrahDetach(IngosstrahReport):
-    def __init__(self, file):
-        super().__init__(file, {
+    def __init__(self, file_path):
+        super().__init__(file_path, {
             "FULLRISK": column_map_detach_fullrisk,
             "KDP4": column_map_detach_kdp4
         },

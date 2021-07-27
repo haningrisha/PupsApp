@@ -8,8 +8,8 @@ target = ["Фамилия", "Имя", "Отчество", "Дата рожден
 
 
 class RenessansReport(Report):
-    def __init__(self, file):
-        super(RenessansReport, self).__init__(file, None)
+    def __init__(self, file_path):
+        super(RenessansReport, self).__init__(file_path, None)
 
 
 class RenessansAttach(RenessansReport):
@@ -28,8 +28,8 @@ class RenessansAttach(RenessansReport):
 
 
 class RenessansDetach(RenessansReport):
-    def __init__(self, file):
-        super().__init__(file)
+    def __init__(self, file_path):
+        super().__init__(file_path)
         self.date = self.get_date()
         self.code = self.get_code()
 
@@ -61,13 +61,13 @@ class RenessansDetach(RenessansReport):
             return codes["renessans2"]
         else:
             raise UnsupportedRenCode("Ошибка кода Ренессанс", "Неподдерживаемая комания {0}, \n "
-                                                              "В файле {1}".format(detach_type, self.file))
+                                                              "В файле {1}".format(detach_type, self.file_path))
 
     def get_date(self):
         text = self.ws.cell(14, 1).value
         date = re.search('([0-2]\d|3[01]).(0\d|1[012]).(\d{4})', text)
         if date is None:
-            raise NoDateFound("14, 1", self.file)
+            raise NoDateFound("14, 1", self.file_path)
         date = date.group()
         date = datetime.datetime.strptime(date, '%d.%m.%Y')
         return date

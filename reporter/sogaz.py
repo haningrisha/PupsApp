@@ -16,8 +16,8 @@ def sum_list(program):
 
 
 class SogazReport(Report):
-    def __init__(self, file):
-        super().__init__(file)
+    def __init__(self, file_path):
+        super().__init__(file_path)
 
     def get_content(self, return_header_row=False):
         data = []
@@ -65,7 +65,7 @@ class SogazReport(Report):
             code = [["СОГАЗ СТОМАТОЛОГИЯ Прямой доступ ПК", "0618RР137 СТОМАТОЛОГИЯ ПРЯМОЙ ДОСТУП ПК", 1102]]
         else:
             raise UnsupportedSogazCode("Код Согаз не распознан", "Не удалось распознать код в файле {0} в "
-                                                                 "строке {1}".format(self.file, string_program))
+                                                                 "строке {1}".format(self.file_path, string_program))
         return code
 
 

@@ -5,8 +5,8 @@ import re
 
 
 class RosgosstrahReport(Report):
-    def __init__(self, file, pattern):
-        super().__init__(file)
+    def __init__(self, file_path, pattern):
+        super().__init__(file_path)
         self.pattern = pattern
 
     def find_data_parts(self, min_col=1):
@@ -34,13 +34,13 @@ class RosgosstrahReport(Report):
     def parse_date(self, row):
         dates = re.findall('[0-9]?[0-9]\.[0-9][0-9]\.[0-9][0-9][0-9][0-9]', row[0])
         if len(dates) == 0:
-            raise NoDateFound(row[0], self.file)
+            raise NoDateFound(row[0], self.file_path)
         if len(dates) == 1:
             return {"cnl": dates[0]}
         elif len(dates) == 2:
             return {"from": dates[0], "to": dates[1]}
         else:
-            raise UnsupportedDateQuantity(row[0], self.file)
+            raise UnsupportedDateQuantity(row[0], self.file_path)
 
     def parse_type(self, type_cell: str):
         if "АО \"Поликлинический комплекс\"" in type_cell:
@@ -54,7 +54,7 @@ class RosgosstrahReport(Report):
                 "detach": ["РГС СМТ Прямой доступ", "РГС Прямой доступ 0002/СК", 2],
             }
         else:
-            raise UnrecognisedType("Ошибка типа", f"Неподдреживаемый тип в файле {self.file}")
+            raise UnrecognisedType("Ошибка типа", f"Неподдреживаемый тип в файле {self.file_path}")
 
     def format_name(self, name):
         name_array = name.split(" ")
@@ -69,13 +69,13 @@ class RosgosstrahReport(Report):
         else:
             raise UnsupportedNameLength("Ошибка имени",
                                         "Неподдерживаемый формат имени '{0}' в  в файле {1}"
-                                        .format(name, self.file))
+                                        .format(name, self.file_path))
         return [surname, first_name, sec_name]
 
 
 class RosgosstrahAttach(RosgosstrahReport):
-    def __init__(self, file):
-        super().__init__(file, ('№ п/п', 'ФИО', 'Пол', 'Дата рождения', 'Адрес проживания', 'Телефоны', 'Полис'))
+    def __init__(self, file_path):
+        super().__init__(file_path, ('№ п/п', 'ФИО', 'Пол', 'Дата рождения', 'Адрес проживания', 'Телефоны', 'Полис'))
 
     def get_data(self):
         data = []
@@ -100,8 +100,8 @@ class RosgosstrahAttach(RosgosstrahReport):
 
 
 class RosgosstrahDetach(RosgosstrahReport):
-    def __init__(self, file):
-        super().__init__(file, ('№ п/п', 'ФИО', 'Пол', 'Дата рождения', 'Полис'))
+    def __init__(self, file_path):
+        super().__init__(file_path, ('№ п/п', 'ФИО', 'Пол', 'Дата рождения', 'Полис'))
 
     def get_data(self):
         data = []

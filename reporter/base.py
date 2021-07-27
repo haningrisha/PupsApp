@@ -1,20 +1,39 @@
 from openpyxl import load_workbook
 from reporter.utils import open_xls_as_xlsx, open_csv_as_xlsx
+from collections import namedtuple
+from abc import ABC, abstractmethod
 
 
-class Report:
-    def __init__(self, file, encoding=None):
-        self.file = file
+Target = namedtuple('Target',
+                    [
+                        'name',
+                        'policy_number',
+                        'date_start',
+                        'date_end',
+                        'program',
+                        'birth_date',
+                        'insurance',
+                        'date_cancel'
+                    ])
+
+
+class Report(ABC):
+    def __init__(self, file_path, encoding=None):
+        self.file_path = file_path
         self.encoding = encoding
-        self.ws = self.get_ws(file)
+        self.ws = self.get_ws(file_path)
+        self.allowed_types = ("xls", "XLS", "csv", "xlsx")
+        self.xls_types = ("xls", "XLS")
+        self.csv_types = ("csv", "CSV")
 
+    @abstractmethod
     def get_data(self):
-        pass
+        """Абстрактный метод для получения данных"""
 
     def get_ws(self, file):
-        if file.split(".")[-1] in ["xls", "XLS"]:
+        if self.is_xls(file):
             wb_tmp = open_xls_as_xlsx(file, self.encoding)
-        elif file.split(".")[-1] == "csv":
+        elif self.is_csv(file):
             wb_tmp = open_csv_as_xlsx(file)
         else:
             wb_tmp = load_workbook(file)
@@ -23,6 +42,13 @@ class Report:
         return ws_tmp
 
     @staticmethod
-    def is_reportable(file):
-        return file.split(".")[-1] in ["xls", "XLS", "csv", "xlsx"]
+    def is_csv(file_name):
+        return file_name.split(".")[-1].lower == "csv"
+
+    @staticmethod
+    def is_xls(file_name):
+        return file_name.split(".")[-1].lower == "xls"
+
+    def is_reportable(self, file_name):
+        return file_name.split(".")[-1] in self.allowed_types
 
