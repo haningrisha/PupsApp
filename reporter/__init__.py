@@ -11,6 +11,9 @@ from reporter.sogaz import SogazAttach, SogazDetach
 from reporter.ingossrah import IngosstrahAttach, IngosstrahDetach
 from reporter.maks import MaksAttach, MaksDetach
 from reporter.rosgosstrah import RosgosstrahFabric, RosgosstrahReport, RosgosstrahDetach, RosgosstrahAttach
+from reporter.vsk import VSKReport
+
+from typing import Callable
 
 alyans_folders = ["альянс"]
 renessans_folders = ["рен", "ренессанс"]
@@ -18,22 +21,29 @@ ingosstrah_folders = ["ингосстрах", "ингос"]
 sogaz_folders = ["согаз"]
 maks_folders = ["макс"]
 rosgosstrah_folders = ["росгосстрах", "россгосстрах"]
+vsk_folders = ['вск']
 detach_folders = ["откреп", "откр", "открепление", "открепления", "detach", "detachment", "detachments"]
 attach_folders = ["прикреп", "прикр", "прикрепление", "прикрепления", "attach", "attachment", "attachments"]
 
 
 class ReportChain:
-    def __init__(self):
+    def __init__(self, folder):
         self.reports = []
+        self.folder = folder
+        self.add_from_folder()
 
-    def add_from_folder(self, folder):
-        only_dirs = [f for f in listdir(folder) if isdir(join(folder, f))]
-        [self.add_alyans(join(folder, f)) for f in only_dirs if f.lower() in alyans_folders]
-        [self.add_renessans(join(folder, f)) for f in only_dirs if f.lower() in renessans_folders]
-        [self.add_ingosstrah(join(folder, f)) for f in only_dirs if f.lower() in ingosstrah_folders]
-        [self.add_sogaz(join(folder, f)) for f in only_dirs if f.lower() in sogaz_folders]
-        [self.add_maks(join(folder, f)) for f in only_dirs if f.lower() in maks_folders]
-        [self.add_rosgosstrah(join(folder, f)) for f in only_dirs if f.lower() in rosgosstrah_folders]
+    def add_from_folder(self):
+        self.add_insurance(self.add_alyans, alyans_folders)
+        self.add_insurance(self.add_renessans, renessans_folders)
+        self.add_insurance(self.add_ingosstrah, ingosstrah_folders)
+        self.add_insurance(self.add_sogaz, sogaz_folders)
+        self.add_insurance(self.add_maks, maks_folders)
+        self.add_insurance(self.add_rosgosstrah, rosgosstrah_folders)
+        self.add_insurance(self.add_vsk, vsk_folders)
+
+    def add_insurance(self, adder: Callable, folder_names: list):
+        only_dirs = [f for f in listdir(self.folder) if isdir(join(self.folder, f))]
+        [adder(join(self.folder, f)) for f in only_dirs if f.lower() in folder_names]
 
     def add_alyans(self, folder):
         detach = self.get_detach(folder)
@@ -86,6 +96,14 @@ class ReportChain:
             [self.add_rosgosstrah_attach(join(a, f)) for f in listdir(a) if isfile(join(a, f))]
         for d in detach:
             [self.add_rosgosstrah_detach(join(d, f)) for f in listdir(d) if isfile(join(d, f))]
+
+    def add_vsk(self, folder):
+        detach = self.get_detach(folder)
+        attach = self.get_attach(folder)
+        for a in attach:
+            [self.add_vsk_attach(join(a, f)) for f in listdir(a) if isfile(join(a, f))]
+        for d in detach:
+            [self.add_vsk_detach(join(d, f)) for f in listdir(d) if isfile(join(d, f))]
 
     def get_detach(self, folder):
         only_dirs = [f for f in listdir(folder) if isdir(join(folder, f))]
@@ -142,6 +160,14 @@ class ReportChain:
     def add_rosgosstrah_detach(self, file):
         if RosgosstrahDetach.is_reportable(file):
             self.reports.append(RosgosstrahDetach(file))
+
+    def add_vsk_attach(self, file):
+        if VSKReport.is_reportable(file):
+            self.reports.append(VSKReport(file))
+
+    def add_vsk_detach(self, file):
+        if VSKReport.is_reportable(file):
+            self.reports.append(VSKReport(file))
 
 
 class ReportGenerator:

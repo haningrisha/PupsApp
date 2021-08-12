@@ -1,17 +1,20 @@
 from openpyxl import load_workbook
+from openpyxl.worksheet.worksheet import Worksheet
+from abc import ABC, abstractmethod
 from reporter.utils import open_xls_as_xlsx, open_csv_as_xlsx
 
 
-class Report:
+class Report(ABC):
     def __init__(self, file, encoding=None):
         self.file = file
         self.encoding = encoding
-        self.ws = self.get_ws(file)
+        self.ws = self._get_ws(file)
 
+    @abstractmethod
     def get_data(self):
         pass
 
-    def get_ws(self, file):
+    def _get_ws(self, file) -> Worksheet:
         if file.split(".")[-1] in ["xls", "XLS"]:
             wb_tmp = open_xls_as_xlsx(file, self.encoding)
         elif file.split(".")[-1] == "csv":

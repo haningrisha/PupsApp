@@ -32,8 +32,7 @@ while True:
             else:
                 if values["-FOLDER-"] == "":
                     values["-FOLDER-"] = values["path"]
-                chain = ReportChain()
-                chain.add_from_folder(values["path"])
+                chain = ReportChain(values["path"])
                 generator = ReportGenerator(chain, values["-FOLDER-"], values["-FILENAME-"])
                 saved_path = generator.generate()
                 window["Показать в Finder"].update(visible=True)
