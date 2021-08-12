@@ -73,8 +73,16 @@ class RenessansDetach(RenessansReport):
         return date
 
 
+def get_renessans(file, attach=False, detach=False):
+    if RenessansReport.is_reportable(file):
+        if attach:
+            return RenessansAttach(file)
+        elif detach:
+            return RenessansDetach(file)
+
+
 if __name__ == '__main__':
-    attach = RenessansAttach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Ренессанс Прикреп/002_1682_001???35682620?_79_?????_27_01_2021 (1).xls")
-    attach.get_data()
-    detach = RenessansDetach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Ренессанс Откреп/002_1060_001???35719520?_19_????_03_02_2021.xls")
-    detach.get_data()
+    test_attach = RenessansAttach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Ренессанс Прикреп/002_1682_001???35682620?_79_?????_27_01_2021 (1).xls")
+    test_attach.get_data()
+    test_detach = RenessansDetach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Ренессанс Откреп/002_1060_001???35719520?_19_????_03_02_2021.xls")
+    test_detach.get_data()

@@ -29,3 +29,11 @@ class Report(ABC):
     def is_reportable(file):
         return file.split(".")[-1] in ["xls", "XLS", "csv", "xlsx"]
 
+
+class NullReport(Report):
+    def get_data(self):
+        return []
+
+    def _get_ws(self, file):
+        return None
+

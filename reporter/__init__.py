@@ -11,7 +11,7 @@ from reporter.sogaz import SogazAttach, SogazDetach
 from reporter.ingossrah import IngosstrahAttach, IngosstrahDetach
 from reporter.maks import MaksAttach, MaksDetach
 from reporter.rosgosstrah import RosgosstrahFabric, RosgosstrahReport, RosgosstrahDetach, RosgosstrahAttach
-from reporter.vsk import VSKReport
+from reporter.vsk import get_vsk
 
 from typing import Callable
 
@@ -101,9 +101,9 @@ class ReportChain:
         detach = self.get_detach(folder)
         attach = self.get_attach(folder)
         for a in attach:
-            [self.add_vsk_attach(join(a, f)) for f in listdir(a) if isfile(join(a, f))]
+            self.reports.extend([get_vsk(join(a, f), attach=True) for f in listdir(a) if isfile(join(a, f))])
         for d in detach:
-            [self.add_vsk_detach(join(d, f)) for f in listdir(d) if isfile(join(d, f))]
+            self.reports.extend([get_vsk(join(d, f), detach=True) for f in listdir(d) if isfile(join(d, f))])
 
     def get_detach(self, folder):
         only_dirs = [f for f in listdir(folder) if isdir(join(folder, f))]
@@ -160,14 +160,6 @@ class ReportChain:
     def add_rosgosstrah_detach(self, file):
         if RosgosstrahDetach.is_reportable(file):
             self.reports.append(RosgosstrahDetach(file))
-
-    def add_vsk_attach(self, file):
-        if VSKReport.is_reportable(file):
-            self.reports.append(VSKReport(file))
-
-    def add_vsk_detach(self, file):
-        if VSKReport.is_reportable(file):
-            self.reports.append(VSKReport(file))
 
 
 class ReportGenerator:

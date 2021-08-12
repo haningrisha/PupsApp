@@ -36,8 +36,16 @@ class MaksDetach(MaksReport):
         return data
 
 
+def get_maks(file, attach=False, detach=False):
+    if MaksReport.is_reportable(file):
+        if attach:
+            return MaksAttach(file)
+        elif detach:
+            return MaksDetach(file)
+
+
 if __name__ == '__main__':
-    attach = MaksAttach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Макс/0501p210315_05322_210312.xls")
-    detach = MaksDetach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Макс/0501p210315_05322_210312.xls")
-    attach.get_data()
-    detach.get_data()
+    test_attach = MaksAttach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Макс/0501p210315_05322_210312.xls")
+    test_detach = MaksDetach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Макс/0501p210315_05322_210312.xls")
+    test_attach.get_data()
+    test_detach.get_data()

@@ -138,9 +138,17 @@ class IngosstrahDetach(IngosstrahReport):
                          "ingosstrah_detach")
 
 
+def get_ingosstrah(file, attach=False, detach=False):
+    if IngosstrahReport.is_reportable(file):
+        if attach:
+            return IngosstrahAttach(file)
+        elif detach:
+            return IngosstrahDetach(file)
+
+
 if __name__ == '__main__':
-    attach = IngosstrahAttach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Ингосстрах Прикреп/_04_02_2021_11_17_55_111872_FULLRISK.XLS")
-    detach = IngosstrahDetach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Ингосстрах Откреп/_04_02_2021_11_26_38_978666_KDP4.XLS")
-    attach.get_data()
-    detach.get_data()
+    test_attach = IngosstrahAttach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Ингосстрах Прикреп/_04_02_2021_11_17_55_111872_FULLRISK.XLS")
+    test_detach = IngosstrahDetach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Ингосстрах Откреп/_04_02_2021_11_26_38_978666_KDP4.XLS")
+    test_attach.get_data()
+    test_detach.get_data()
 

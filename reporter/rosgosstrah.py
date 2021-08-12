@@ -140,10 +140,10 @@ class RosgosstrahFabric:
 
 
 if __name__ == '__main__':
-    attach = RosgosstrahAttach(
+    test_attach = RosgosstrahAttach(
         "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Росгосстрах/09-04 ?? 2071-0.xls")
-    attach.get_data()
-    detach = RosgosstrahDetach(
+    test_attach.get_data()
+    test_detach = RosgosstrahDetach(
         "/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Росгосстрах/09-04 ???? 2071-0.xls"
     )
-    detach.get_data()
+    test_detach.get_data()

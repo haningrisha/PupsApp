@@ -17,7 +17,7 @@ class ColumnType(ABC):
 class FIO(ColumnType):
 
     def __init__(self, value: str):
-        self._value: str = value
+        self.value: str = value
         self.first_name = None
         self.surname = None
         self.second_name = None
@@ -26,6 +26,10 @@ class FIO(ColumnType):
     @property
     def value(self):
         return self.get_surname(), self.get_first_name(), self.get_second_name()
+
+    @value.setter
+    def value(self, value):
+        self._value = value
 
     def parse_fio(self):
         fio_array = self._value.split(" ")

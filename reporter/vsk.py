@@ -1,18 +1,24 @@
-from reporter.base import Report
+from reporter.base import Report, NullReport
 import reporter.column_types as ct
-from typing import ClassVar, List, Any
+from typing import ClassVar, List, Dict
 from openpyxl.cell import Cell
 
-HEADER_ROW = {
+ATTACH_HEADER_ROW = {
     "фио": ct.FIO,
     "др": ct.BirthDay,
     "полис": ct.Policy,
     "дата действия полиса с": ct.DateFrom,
-    "дата действия полиса по": ct.DateTo,
-
+    "дата действия полиса по": ct.DateTo
 }
 
-ROW_ENDING_CELLS = (
+DETACH_HEADER_ROW = {
+    "фио": ct.FIO,
+    "др": ct.BirthDay,
+    "полис": ct.Policy,
+    "дата действия полиса по": ct.DateCancel
+}
+
+ENDING_ROW_CELLS = (
     '',
     None
 )
@@ -21,12 +27,13 @@ ROW_ENDING_CELLS = (
 class VSKReport(Report):
     """ Отчет ВСК """
 
-    def __init__(self, file):
+    def __init__(self, file, header_row: Dict):
         super(VSKReport, self).__init__(file)
         self.tables = []
         self.typed_tables = []
         self.final_table = []
         self.row_length = 11
+        self.header_row = header_row
 
     def get_data(self):
         self._get_tables()
@@ -37,7 +44,7 @@ class VSKReport(Report):
     def _make_final_table(self):
         for table in self.typed_tables:
             for row in table:
-                final_row = [None] * 11
+                final_row = [None] * self.row_length
                 for cell in row:
                     if isinstance(cell, ct.FIO):
                         for sub_value in cell.value:
@@ -59,7 +66,7 @@ class VSKReport(Report):
         for row in self.ws.iter_rows():
             for cell in row:
                 if isinstance(cell.value, str):
-                    if cell.value.lower() in HEADER_ROW:
+                    if cell.value.lower() in self.header_row:
                         min_row = cell.row
                         max_row = self._find_max_row(min_row)
                         self.tables.append(self.ws[min_row:max_row])
@@ -72,15 +79,24 @@ class VSKReport(Report):
                 return row[0].row - 1
         return self.ws.max_row
 
-    @staticmethod
-    def _get_column_type(column_header: str) -> ClassVar[ct.ColumnType]:
-        return HEADER_ROW.get(column_header)
+    def _get_column_type(self, column_header: str) -> ClassVar[ct.ColumnType]:
+        return self.header_row.get(column_header)
 
     @staticmethod
     def _is_ending_row(row):
 
         for cell in row:
-            if cell.value in ROW_ENDING_CELLS:
+            if cell.value in ENDING_ROW_CELLS:
                 return True
             else:
                 return False
+
+
+def get_vsk(file, attach=False, detach=False):
+    if VSKReport.is_reportable(file):
+        if attach:
+            return VSKReport(file, ATTACH_HEADER_ROW)
+        elif detach:
+            return VSKReport(file, DETACH_HEADER_ROW)
+    else:
+        return NullReport(file)

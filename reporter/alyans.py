@@ -89,8 +89,16 @@ class AlyansDetach(AlyansReport):
         super().__init__(file, column_map_detach, "alyans_detach")
 
 
+def get_alyans(file, attach=False, detach=False):
+    if AlyansReport.is_reportable(file):
+        if attach:
+            return AlyansAttach(file)
+        elif detach:
+            return AlyansDetach(file)
+
+
 if __name__ == '__main__':
-    attach = AlyansAttach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Альянс Прикреп/??_2021.02.03_1492_????????????.csv")
-    detach = AlyansDetach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Альянс Откреп/??_2021.02.08_10062_???????????.csv")
-    attach.get_data()
-    detach.get_data()
+    test_attach = AlyansAttach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Альянс Прикреп/??_2021.02.03_1492_????????????.csv")
+    test_detach = AlyansDetach("/Users/grigorijhanin/Documents/Работа пупс/PupsApp/test/Альянс Откреп/??_2021.02.08_10062_???????????.csv")
+    test_attach.get_data()
+    test_detach.get_data()
