@@ -37,8 +37,8 @@ while True:
                 saved_path = generator.generate()
                 window["Показать в Finder"].update(visible=True)
                 window['-OUTPUT-'].update('Файл создан', text_color="white")
-        except (TypeError, ValueError):
-            sg.popup("Ошибка", "Дата открепления не распознана")
+        # except (TypeError, ValueError) as e:
+        #     sg.popup("Ошибка", "Дата открепления не распознана")
         except InvalidFileException:
             sg.popup_error("Неверный формат файла.", "\nПоддерживаются только .xlsx,.xlsm,.xltx,.xltm,.xls")
         except UnrecognisedType as e:

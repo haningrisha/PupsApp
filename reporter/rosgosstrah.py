@@ -9,6 +9,9 @@ class RosgosstrahReport(Report):
         super().__init__(file)
         self.pattern = pattern
 
+    def get_data(self):
+        pass
+
     def find_data_parts(self, min_col=1):
         data_parts = []
         found = False
