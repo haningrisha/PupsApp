@@ -2,6 +2,7 @@ from reporter.base import Report, NullReport
 import reporter.column_types as ct
 from typing import ClassVar, List, Dict
 from openpyxl.cell import Cell
+from reporter.exceptions import UnsupportedNameLength
 
 ATTACH_HEADER_ROW = {
     "фио": ct.FIO,
@@ -55,9 +56,17 @@ class VSKReport(Report):
 
     def _make_typed_table(self, table: List[List[Cell]]) -> List[List[ct.ColumnType]]:
         typed_table = []
-        type_map = [self._get_column_type(header.value.lower().strip()) for header in table[0]]
+        type_map = [
+            self._get_column_type(header.value.lower().strip())
+            if header.value is not None else None
+            for header in table[0]
+        ]
         for row in table[1:]:
-            typed_row = [type_map[i](cell.value) for i, cell in enumerate(row) if type_map[i] is not None]
+            try:
+                typed_row = [type_map[i](cell.value) for i, cell in enumerate(row) if type_map[i] is not None]
+            except UnsupportedNameLength as e:
+                e.message = e.message + f" в файле{self.file}"
+                raise
             typed_table.append(typed_row)
         return typed_table
 
