@@ -62,11 +62,7 @@ class VSKReport(Report):
             for header in table[0]
         ]
         for row in table[1:]:
-            try:
-                typed_row = [type_map[i](cell.value) for i, cell in enumerate(row) if type_map[i] is not None]
-            except UnsupportedNameLength as e:
-                e.message = e.message + f" в файле{self.file}"
-                raise
+            typed_row = [type_map[i](cell.value) for i, cell in enumerate(row) if type_map[i] is not None]
             typed_table.append(typed_row)
         return typed_table
 

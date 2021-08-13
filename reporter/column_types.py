@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from reporter.exceptions import UnsupportedNameLength
 from typing import Any
 from datetime import datetime
+import re
 
 
 @dataclass
@@ -17,7 +18,7 @@ class ColumnType(ABC):
 class FIO(ColumnType):
 
     def __init__(self, value: str):
-        self.value: str = value
+        self.value: str = value.strip()
         self.first_name = None
         self.surname = None
         self.second_name = None
@@ -32,8 +33,12 @@ class FIO(ColumnType):
         self._value = value
 
     def parse_fio(self):
-        fio_array = self._value.split(" ")
-        if len(fio_array) == 3:
+        fio_array = re.split(r' +', self._value)
+        if len(fio_array) == 2:
+            self.surname = fio_array[0]
+            self.first_name = fio_array[1]
+            self.second_name = ''
+        elif len(fio_array) == 3:
             self.surname = fio_array[0]
             self.first_name = fio_array[1]
             self.second_name = fio_array[2]

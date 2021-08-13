@@ -173,7 +173,11 @@ class ReportGenerator:
         wb = Workbook()
         ws = wb.active
         for report in self.report_chain.reports:
-            data += report.get_data()
+            try:
+                data += report.get_data()
+            except Exception as e:
+                e.message = e.message + f' в файле {report.file}'
+                raise
         for r in data:
             ws.append(r)
         fit_columns_width(ws)
