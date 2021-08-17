@@ -176,7 +176,8 @@ class ReportGenerator:
             try:
                 data += report.get_data()
             except Exception as e:
-                e.message = e.message + f' в файле {report.file}'
+                if hasattr(e, 'message'):
+                    e.message = e.message + f' в файле {report.file}'
                 raise
         for r in data:
             ws.append(r)

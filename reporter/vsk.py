@@ -1,23 +1,37 @@
 from reporter.base import Report, NullReport
 import reporter.column_types as ct
-from typing import ClassVar, List, Dict
+from typing import ClassVar, List
 from openpyxl.cell import Cell
-from reporter.exceptions import UnsupportedNameLength
+from functools import singledispatchmethod
 
 ATTACH_HEADER_ROW = {
     "фио": ct.FIO,
     "др": ct.BirthDay,
     "полис": ct.Policy,
     "дата действия полиса с": ct.DateFrom,
-    "дата действия полиса по": ct.DateTo
+    "дата действия полиса по": ct.DateTo,
+    "дата действия полиса": ct.DateFrom,
+    "дата действия полиса до": ct.DateTo
 }
 
 DETACH_HEADER_ROW = {
     "фио": ct.FIO,
     "др": ct.BirthDay,
     "полис": ct.Policy,
-    "дата действия полиса по": ct.DateCancel
+    "дата действия полиса по": ct.DateCancel,
+    "дата действия полиса до": ct.DateCancel
 }
+
+CODES_KDC = ct.Codes(
+                clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ'),
+                control_code=ct.ControlCode(value='ДС10к045СК/2016/16180SMU00009'),
+                medicine_id=ct.MedicinesID(value='4001554')
+            )
+CODES_PK = ct.Codes(
+                clinic_code=ct.ClinicCode(value='САО "ВСК" ПК'),
+                control_code=ct.ControlCode(value='ДС19к17180SMU00092/9020'),
+                medicine_id=ct.MedicinesID(value='4001554')
+            )
 
 ENDING_ROW_CELLS = (
     '',
@@ -28,18 +42,20 @@ ENDING_ROW_CELLS = (
 class VSKReport(Report):
     """ Отчет ВСК """
 
-    def __init__(self, file, header_row: Dict):
+    def __init__(self, file, header_row: dict, codes: List[ct.Codes]):
         super(VSKReport, self).__init__(file)
         self.tables = []
         self.typed_tables = []
         self.final_table = []
         self.row_length = 11
+        self.codes = codes
         self.header_row = header_row
 
     def get_data(self):
         self._get_tables()
         self.typed_tables = [self._make_typed_table(table) for table in self.tables]
         self._make_final_table()
+        self._add_codes()
         return self.final_table
 
     def _make_final_table(self):
@@ -47,12 +63,31 @@ class VSKReport(Report):
             for row in table:
                 final_row = [None] * self.row_length
                 for cell in row:
-                    if isinstance(cell, ct.FIO):
-                        for sub_value in cell.value:
-                            final_row[sub_value.column_number] = sub_value.value
-                    else:
-                        final_row[cell.column_number] = cell.value
+                    self._add_cell_to_row(cell, final_row)
                 self.final_table.append(final_row)
+
+    def _add_codes(self):
+        new_final_table = []
+        for row in self.final_table:
+            for code in self.codes:
+                copy_row = row.copy()
+                self._add_cell_to_row(code, copy_row)
+                new_final_table.append(copy_row)
+        self.final_table = new_final_table
+
+    @singledispatchmethod
+    def _add_cell_to_row(self, cell, row):
+        row[cell.column_number] = cell.value
+
+    @_add_cell_to_row.register
+    def _(self, cell: ct.FIO, row):
+        for sub_value in cell.value:
+            row[sub_value.column_number] = sub_value.value
+
+    @_add_cell_to_row.register
+    def _(self, cell: ct.Codes, row):
+        for sub_value in cell.value:
+            row[sub_value.column_number] = sub_value.value
 
     def _make_typed_table(self, table: List[List[Cell]]) -> List[List[ct.ColumnType]]:
         typed_table = []
@@ -100,8 +135,8 @@ class VSKReport(Report):
 def get_vsk(file, attach=False, detach=False):
     if VSKReport.is_reportable(file):
         if attach:
-            return VSKReport(file, ATTACH_HEADER_ROW)
+            return VSKReport(file, ATTACH_HEADER_ROW, [CODES_KDC, CODES_PK])
         elif detach:
-            return VSKReport(file, DETACH_HEADER_ROW)
+            return VSKReport(file, DETACH_HEADER_ROW, [CODES_KDC, CODES_PK])
     else:
         return NullReport(file)

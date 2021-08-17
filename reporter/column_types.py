@@ -108,3 +108,31 @@ class DateCancel(ColumnType):
     value: datetime
     column_number: int = 7
 
+
+@dataclass
+class ClinicCode(ColumnType):
+    value: str
+    column_number: int = 8
+
+
+@dataclass
+class ControlCode(ColumnType):
+    value: str
+    column_number: int = 9
+
+
+@dataclass
+class MedicinesID(ColumnType):
+    value: str
+    column_number: int = 10
+
+
+@dataclass
+class Codes:
+    clinic_code: ClinicCode
+    control_code: ControlCode
+    medicine_id: MedicinesID
+
+    @property
+    def value(self):
+        return self.clinic_code, self.control_code, self.medicine_id
