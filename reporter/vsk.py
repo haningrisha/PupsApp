@@ -25,12 +25,12 @@ DETACH_HEADER_ROW = {
 CODES_KDC = ct.Codes(
                 clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ'),
                 control_code=ct.ControlCode(value='ДС10к045СК/2016/16180SMU00009'),
-                medicine_id=ct.MedicinesID(value='4001554')
+                medicine_id=ct.MedicinesID(value=4001554)
             )
 CODES_PK = ct.Codes(
                 clinic_code=ct.ClinicCode(value='САО "ВСК" ПК'),
                 control_code=ct.ControlCode(value='ДС19к17180SMU00092/9020'),
-                medicine_id=ct.MedicinesID(value='4001554')
+                medicine_id=ct.MedicinesID(value=4001554)
             )
 
 ENDING_ROW_CELLS = (

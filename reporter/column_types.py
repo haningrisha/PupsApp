@@ -123,7 +123,7 @@ class ControlCode(ColumnType):
 
 @dataclass
 class MedicinesID(ColumnType):
-    value: str
+    value: int
     column_number: int = 10
 
 
