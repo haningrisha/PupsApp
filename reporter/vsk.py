@@ -22,15 +22,27 @@ DETACH_HEADER_ROW = {
     "дата действия полиса до": ct.DateCancel
 }
 
-CODES_KDC = ct.Codes(
+CODES_KDC_ATT = ct.Codes(
                 clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ'),
                 control_code=ct.ControlCode(value='ДС10к045СК/2016/16180SMU00009'),
                 medicine_id=ct.MedicinesID(value=4001554)
             )
-CODES_PK = ct.Codes(
+CODES_PK_ATT = ct.Codes(
                 clinic_code=ct.ClinicCode(value='САО "ВСК" ПК'),
                 control_code=ct.ControlCode(value='ДС19к17180SMU00092/9020'),
                 medicine_id=ct.MedicinesID(value=4001554)
+            )
+
+
+CODES_KDC_DET = ct.Codes(
+                clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ'),
+                control_code=ct.ControlCode(value='ДС10к045СК/2016/16180SMU00009'),
+                medicine_id=ct.MedicinesID(value=2)
+            )
+CODES_PK_DET = ct.Codes(
+                clinic_code=ct.ClinicCode(value='САО "ВСК" ПК'),
+                control_code=ct.ControlCode(value='ДС19к17180SMU00092/9020'),
+                medicine_id=ct.MedicinesID(value=2)
             )
 
 ENDING_ROW_CELLS = (
@@ -135,8 +147,8 @@ class VSKReport(Report):
 def get_vsk(file, attach=False, detach=False):
     if VSKReport.is_reportable(file):
         if attach:
-            return VSKReport(file, ATTACH_HEADER_ROW, [CODES_KDC, CODES_PK])
+            return VSKReport(file, ATTACH_HEADER_ROW, [CODES_KDC_ATT, CODES_PK_ATT])
         elif detach:
-            return VSKReport(file, DETACH_HEADER_ROW, [CODES_KDC, CODES_PK])
+            return VSKReport(file, DETACH_HEADER_ROW, [CODES_KDC_DET, CODES_PK_DET])
     else:
         return NullReport(file)
