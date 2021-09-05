@@ -37,14 +37,16 @@ class SogazReport(Report):
             return data, header_row
         return data
 
-    def get_code(self, program):
+    def get_code(self, program, work_place=""):
         string_program = program
         program = program.split(';')
         program = sum_list([p.split(" ") for p in program])
         program = [p.lower() for p in program]
         program = sum_list([p.split("_") for p in program])
         program = sum_list([p.split("\"") for p in program])
-        if {"\"аброссия\"", "аброссия", "аб"} & set(program):
+        if work_place.strip() == "\"ГАЗПРОМ МЕЖРЕГИОНГАЗ САНКТ-ПЕТЕРБУРГ\" ООО":
+            code = [["Согаз Межрегионгаз Прямой доступ ПК-КДЦ", "Межрегионгаз Прямой доступ ПК-КДЦ", 4000971]]
+        elif {"\"аброссия\"", "аброссия", "аб"} & set(program):
             code = [["АБС СТОМАТОЛОГИЯ Прямой доступ", "ДС№9 к 0618RP137 АБРОССИЯ", 1102]]
         elif "невское" in program:
             code = [["Невское ПКБ СОГАЗ", "ДС№10 к 0618RP137", 4001439]]
@@ -77,13 +79,13 @@ class SogazAttach(SogazReport):
         list_type = list_type.lower().split(" ")
         for row in data:
             if "изменение" in list_type:
-                codes = self.get_code(row[10])
+                codes = self.get_code(row[10], row[11])
                 for code in codes:
                     data_formatted.append(
                         row[0:3] + str_to_date([row[3]]) + [row[4]] + str_to_date(row[8:10]) + [None] +
                         code)
             elif "прикрепление" in list_type:
-                codes = self.get_code(row[12])
+                codes = self.get_code(row[12], row[13])
                 for code in codes:
                     data_formatted.append(
                         row[0:3] + str_to_date([row[3]]) + [row[9]] + str_to_date(row[10:12]) + [None] +
@@ -96,7 +98,7 @@ class SogazDetach(SogazReport):
         data = self.get_content()
         data_formatted = []
         for row in data:
-            codes = self.get_code(row[6])
+            codes = self.get_code(row[6], row[7])
             for code in codes:
                 data_formatted.append(
                     row[0:3] + str_to_date([row[3]]) + [row[4]] + [None, None] + str_to_date([row[5]]) +
