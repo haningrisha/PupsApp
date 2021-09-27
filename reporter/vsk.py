@@ -1,8 +1,8 @@
-from reporter.base import Report, NullReport, ENDING_ROW_CELLS
+from reporter.base import Report, NullReport, ENDING_ROW_CELLS, Config
 import reporter.column_types as ct
 
 
-ATTACH_CONFIG = {
+ATTACH_CONFIG = Config({
     "codes": (
         ct.Codes(  # KDC
             clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ'),
@@ -25,9 +25,9 @@ ATTACH_CONFIG = {
         "дата действия полиса до": ct.DateTo
     },
     "ending_row_cells": ENDING_ROW_CELLS
-}
+})
 
-DETACH_CONFIG = {
+DETACH_CONFIG = Config({
     "codes": (
         ct.Codes(  # KDC
             clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ'),
@@ -48,7 +48,7 @@ DETACH_CONFIG = {
         "дата действия полиса до": ct.DateCancel
     },
     "ending_row_cells": ENDING_ROW_CELLS
-}
+})
 
 
 def get_vsk(file, attach=False, detach=False):

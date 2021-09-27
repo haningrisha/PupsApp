@@ -4,13 +4,13 @@ from . import column_types as ct
 ATTACH_CONFIG = Config({
     "codes": (
         ct.Codes(  # KDC
-            clinic_code=ct.ClinicCode(value='AO “АльфаСтрахование” КДЦ'),
-            control_code=ct.ControlCode(value='980/24/10-15'),
+            clinic_code=ct.ClinicCode(value='Абсолют Страхование КДЦ'),
+            control_code=ct.ControlCode(value="0035/СК"),
             medicine_id=ct.MedicinesID(value=921)
         ),
         ct.Codes(  # PK
-            clinic_code=ct.ClinicCode(value='AO “АльфаСтрахование” ПК'),
-            control_code=ct.ControlCode(value='0016/СК'),
+            clinic_code=ct.ClinicCode(value='Абсолют Страхование ПК'),
+            control_code=ct.ControlCode(value='9004'),
             medicine_id=ct.MedicinesID(value=921)
         )
     ),
@@ -18,10 +18,8 @@ ATTACH_CONFIG = Config({
         "фио": ct.FIO,
         "дата рождения": ct.BirthDay,
         "№ полиса": ct.Policy,
-        "период обслуживания": {
-            "с": ct.DateFrom,
-            "по": ct.DateTo
-        }
+        "дата начала действия полиса": ct.DateFrom,
+        "дата окончания действия полиса": ct.DateTo
     },
     "ending_row_cells": ENDING_ROW_CELLS
 })
@@ -29,13 +27,13 @@ ATTACH_CONFIG = Config({
 DETACH_CONFIG = Config({
     "codes": (
         ct.Codes(  # KDC
-            clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ'),
-            control_code=ct.ControlCode(value='ДС10к045СК/2016/16180SMU00009'),
+            clinic_code=ct.ClinicCode(value='Абсолют Страхование КДЦ'),
+            control_code=ct.ControlCode(value="0035/СК"),
             medicine_id=ct.MedicinesID(value=2)
         ),
         ct.Codes(  # PK
-            clinic_code=ct.ClinicCode(value='САО "ВСК" ПК'),
-            control_code=ct.ControlCode(value='ДС19к17180SMU00092/9020'),
+            clinic_code=ct.ClinicCode(value='Абсолют Страхование ПК'),
+            control_code=ct.ControlCode(value='9004'),
             medicine_id=ct.MedicinesID(value=2)
         )
     ),
@@ -43,13 +41,13 @@ DETACH_CONFIG = Config({
         "фио": ct.FIO,
         "дата рождения": ct.BirthDay,
         "№ полиса": ct.Policy,
-        "дата открепления с (с данной даты не обслуживается)": ct.DateCancel
+        "дата открепления": ct.DateCancel
     },
     "ending_row_cells": ENDING_ROW_CELLS
 })
 
 
-def get_alfa(file, attach=False, detach=False):
+def get_absolut(file, attach=False, detach=False):
     if Report.is_reportable(file):
         if attach:
             return Report(file, ATTACH_CONFIG)

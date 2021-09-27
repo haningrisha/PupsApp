@@ -1,16 +1,36 @@
 from openpyxl import load_workbook
 from openpyxl.worksheet.worksheet import Worksheet
+from openpyxl.cell.cell import MergedCell
 from abc import ABC, abstractmethod
 from .utils import open_xls_as_xlsx, open_csv_as_xlsx
 from . import column_types as ct
 from typing import ClassVar, List
 from openpyxl.cell import Cell
-from functools import singledispatchmethod
+from functools import singledispatchmethod, cached_property
 
 ENDING_ROW_CELLS = (
     '',
     None
 )
+
+
+class Config:
+    def __init__(self, config: dict):
+        self.config = config
+
+    @cached_property
+    def depth(self):
+        def count_depth(dictionary):
+            depth = 1
+            for value in dictionary.values():
+                if isinstance(value, dict):
+                    if depth < 1 + count_depth(value):
+                        depth = 1 + count_depth(value)
+            return depth
+        return count_depth(self.config)
+
+    def get(self, *args, **kwargs):
+        return self.config.get(*args, **kwargs)
 
 
 class AbstractReport(ABC):
@@ -46,7 +66,7 @@ class AbstractReport(ABC):
 class Report(AbstractReport):
     """ Отчет """
 
-    def __init__(self, file, config):
+    def __init__(self, file, config: Config):
         super().__init__(file)
         self.tables = []
         self.typed_tables = []
@@ -55,6 +75,7 @@ class Report(AbstractReport):
         self.codes = config.get("codes")
         self.header_row = config.get("header_row")
         self.ending_row_cells = config.get("ending_row_cells")
+        self.config = config
 
     def get_data(self):
         self._get_tables()
@@ -96,15 +117,46 @@ class Report(AbstractReport):
 
     def _make_typed_table(self, table: List[List[Cell]]) -> List[List[ct.ColumnType]]:
         typed_table = []
-        type_map = [
-            self._get_column_type(header.value.lower().strip())
-            if header.value is not None else None
-            for header in table[0]
-        ]
-        for row in table[1:]:
+        type_map = self._get_type_map(table)
+        for row in table[self.config.depth-1:]:
             typed_row = [type_map[i](cell.value) for i, cell in enumerate(row) if type_map[i] is not None]
             typed_table.append(typed_row)
         return typed_table
+
+    def _get_type_map(self, table: List[List[Cell]], depth=0, config_header_row=None, col_start=None, col_end=None) -> list:
+        type_map = []
+        if config_header_row is None:
+            config_header_row = self.header_row
+        header_row = table[depth]
+        if col_start is not None:
+            header_row = header_row[col_start:]
+        if col_end is not None:
+            header_row = header_row[:col_end]
+        for header in header_row:
+            if header.value is not None:
+                column_type = self._get_column_type(config_header_row, header.value.lower().strip())
+                if isinstance(column_type, dict):
+                    merged_cells = self.count_merged_cells(table[depth], header.column)
+                    type_map.extend(
+                        self._get_type_map(
+                            table, depth+1, column_type, col_start=header.column-1, col_end=merged_cells+header.column
+                        )
+                    )
+                else:
+                    type_map.append(column_type)
+            elif not isinstance(header, MergedCell):
+                type_map.append(None)
+        return type_map
+
+    @staticmethod
+    def count_merged_cells(row, start=0):
+        count = 0
+        for cell in row[start:]:
+            if isinstance(cell, MergedCell):
+                count += 1
+            else:
+                return count
+        return count
 
     def _get_tables(self):
         """ Метод разделяет таблицу на подтаблицы, отделяя лишнюю информацию """
@@ -119,16 +171,16 @@ class Report(AbstractReport):
 
     def _find_max_row(self, min_row: int):
         """ Метод для поиска максимального ряда подтаблицы по минимальному """
-        for row in self.ws.iter_rows(min_row=min_row):
+        for row in self.ws.iter_rows(min_row=min_row+self.config.depth-1):
             if self._is_ending_row(row):
                 return row[0].row - 1
         return self.ws.max_row
 
-    def _get_column_type(self, column_header: str) -> ClassVar[ct.ColumnType]:
-        return self.header_row.get(column_header)
+    @staticmethod
+    def _get_column_type(header_row, column_header: str) -> ClassVar[ct.ColumnType]:
+        return header_row.get(column_header)
 
     def _is_ending_row(self, row):
-
         for cell in row:
             if cell.value in self.ending_row_cells:
                 return True
@@ -142,4 +194,3 @@ class NullReport(AbstractReport):
 
     def _get_ws(self, file):
         return None
-

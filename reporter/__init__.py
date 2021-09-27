@@ -13,6 +13,8 @@ from .maks import MaksAttach, MaksDetach
 from .rosgosstrah import RosgosstrahFabric, RosgosstrahReport, RosgosstrahDetach, RosgosstrahAttach
 from .vsk import get_vsk
 from .alfa import get_alfa
+from .absolut import get_absolut
+from .best_doctor import get_best_doctor
 
 from typing import Callable
 
@@ -24,6 +26,8 @@ maks_folders = ["макс"]
 rosgosstrah_folders = ["росгосстрах", "россгосстрах"]
 vsk_folders = ['вск']
 alfa_folders = ['альфа']
+absolut_folders = ['абсолют']
+best_doctor_folders = ['бест доктор', 'бестдоктор', 'best doctor']
 detach_folders = ["откреп", "откр", "открепление", "открепления", "detach", "detachment", "detachments"]
 attach_folders = ["прикреп", "прикр", "прикрепление", "прикрепления", "attach", "attachment", "attachments"]
 
@@ -43,6 +47,8 @@ class ReportChain:
         self.add_insurance(self.add_rosgosstrah, rosgosstrah_folders)
         self.add_insurance(self.add_vsk, vsk_folders)
         self.add_insurance(self.add_alfa, alfa_folders)
+        self.add_insurance(self.add_absolut, absolut_folders)
+        self.add_insurance(self.add_best_doctor, best_doctor_folders)
 
     def add_insurance(self, adder: Callable, folder_names: list):
         only_dirs = [f for f in listdir(self.folder) if isdir(join(self.folder, f))]
@@ -115,6 +121,22 @@ class ReportChain:
             self.reports.extend([get_alfa(join(a, f), attach=True) for f in listdir(a) if isfile(join(a, f))])
         for d in detach:
             self.reports.extend([get_alfa(join(d, f), detach=True) for f in listdir(d) if isfile(join(d, f))])
+
+    def add_absolut(self, folder):
+        detach = self.get_detach(folder)
+        attach = self.get_attach(folder)
+        for a in attach:
+            self.reports.extend([get_absolut(join(a, f), attach=True) for f in listdir(a) if isfile(join(a, f))])
+        for d in detach:
+            self.reports.extend([get_absolut(join(d, f), detach=True) for f in listdir(d) if isfile(join(d, f))])
+
+    def add_best_doctor(self, folder):
+        detach = self.get_detach(folder)
+        attach = self.get_attach(folder)
+        for a in attach:
+            self.reports.extend([get_best_doctor(join(a, f), attach=True) for f in listdir(a) if isfile(join(a, f))])
+        for d in detach:
+            self.reports.extend([get_best_doctor(join(d, f), detach=True) for f in listdir(d) if isfile(join(d, f))])
 
     def get_detach(self, folder):
         only_dirs = [f for f in listdir(folder) if isdir(join(folder, f))]
