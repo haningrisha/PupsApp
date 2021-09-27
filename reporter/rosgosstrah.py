@@ -1,10 +1,10 @@
-from reporter.base import Report
+from reporter.base import AbstractReport
 from reporter.exceptions import UnsupportedNameLength, UnrecognisedType, UnsupportedDateQuantity, NoDateFound, \
     FileTypeWasNotDefined
 import re
 
 
-class RosgosstrahReport(Report):
+class RosgosstrahReport(AbstractReport):
     def __init__(self, file, pattern):
         super().__init__(file)
         self.pattern = pattern

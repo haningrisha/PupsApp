@@ -1,7 +1,7 @@
-from reporter.base import Report
+from reporter.base import AbstractReport
 
 
-class MaksReport(Report):
+class MaksReport(AbstractReport):
     def __init__(self, file):
         super().__init__(file, encoding="windows-1251")
 

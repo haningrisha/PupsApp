@@ -1,13 +1,13 @@
 from reporter.config import codes, ids
 from reporter.exceptions import UnsupportedRenCode, NoDateFound
 import re
-from reporter.base import Report
+from reporter.base import AbstractReport
 import datetime
 
 target = ["Фамилия", "Имя", "Отчество", "Дата рождения", "Номер полиса"]
 
 
-class RenessansReport(Report):
+class RenessansReport(AbstractReport):
     def __init__(self, file):
         super(RenessansReport, self).__init__(file, None)
 

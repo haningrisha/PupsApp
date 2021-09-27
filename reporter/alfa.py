@@ -1,11 +1,48 @@
-from openpyxl import load_workbook
-from openpyxl.worksheet.worksheet import Worksheet
-from abc import ABC, abstractmethod
-from .utils import open_xls_as_xlsx, open_csv_as_xlsx
-from . import column_types as ct
+from reporter.base import AbstractReport, NullReport
+import reporter.column_types as ct
 from typing import ClassVar, List
 from openpyxl.cell import Cell
 from functools import singledispatchmethod
+
+ATTACH_HEADER_ROW = {
+    "фио": ct.FIO,
+    "дата рождения": ct.BirthDay,
+    "№ полиса": ct.Policy,
+    "дата действия полиса с": ct.DateFrom,
+    "дата действия полиса по": ct.DateTo,
+    "дата действия полиса": ct.DateFrom,
+    "дата действия полиса до": ct.DateTo
+}
+
+DETACH_HEADER_ROW = {
+    "фио": ct.FIO,
+    "дата рождения": ct.BirthDay,
+    "№ полиса": ct.Policy,
+    "дата открепления с (с данной даты не обслуживается)": ct.DateCancel
+}
+
+CODES_KDC_ATT = ct.Codes(
+                clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ'),
+                control_code=ct.ControlCode(value='ДС10к045СК/2016/16180SMU00009'),
+                medicine_id=ct.MedicinesID(value=4001554)
+            )
+CODES_PK_ATT = ct.Codes(
+                clinic_code=ct.ClinicCode(value='САО "ВСК" ПК'),
+                control_code=ct.ControlCode(value='ДС19к17180SMU00092/9020'),
+                medicine_id=ct.MedicinesID(value=4001554)
+            )
+
+
+CODES_KDC_DET = ct.Codes(
+                clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ'),
+                control_code=ct.ControlCode(value='ДС10к045СК/2016/16180SMU00009'),
+                medicine_id=ct.MedicinesID(value=2)
+            )
+CODES_PK_DET = ct.Codes(
+                clinic_code=ct.ClinicCode(value='САО "ВСК" ПК'),
+                control_code=ct.ControlCode(value='ДС19к17180SMU00092/9020'),
+                medicine_id=ct.MedicinesID(value=2)
+            )
 
 ENDING_ROW_CELLS = (
     '',
@@ -13,48 +50,17 @@ ENDING_ROW_CELLS = (
 )
 
 
-class AbstractReport(ABC):
-    def __init__(self, file, encoding=None):
-        self.file = file
-        self.encoding = encoding
-        self.ws = self._get_ws(file)
+class AlfaReport(AbstractReport):
+    """ Отчет ВСК """
 
-    @abstractmethod
-    def get_data(self):
-        pass
-
-    def _get_ws(self, file) -> Worksheet:
-        if file.split(".")[-1] in ["xls", "XLS"]:
-            wb_tmp = open_xls_as_xlsx(file, self.encoding)
-        elif file.split(".")[-1] == "csv":
-            wb_tmp = open_csv_as_xlsx(file)
-        else:
-            wb_tmp = load_workbook(file)
-        ws_name = wb_tmp.sheetnames[0]
-        ws_tmp = wb_tmp[ws_name]
-        return ws_tmp
-
-    @staticmethod
-    def is_reportable(file):
-        return AbstractReport.validate_extension(file)
-
-    @staticmethod
-    def validate_extension(file):
-        return file.split(".")[-1] in ["xls", "XLS", "csv", "xlsx"]
-
-
-class Report(AbstractReport):
-    """ Отчет """
-
-    def __init__(self, file, config):
-        super().__init__(file)
+    def __init__(self, file, header_row: dict, codes: List[ct.Codes]):
+        super(AlfaReport, self).__init__(file)
         self.tables = []
         self.typed_tables = []
         self.final_table = []
         self.row_length = 11
-        self.codes = config.get("codes")
-        self.header_row = config.get("header_row")
-        self.ending_row_cells = config.get("ending_row_cells")
+        self.codes = codes
+        self.header_row = header_row
 
     def get_data(self):
         self._get_tables()
@@ -127,19 +133,21 @@ class Report(AbstractReport):
     def _get_column_type(self, column_header: str) -> ClassVar[ct.ColumnType]:
         return self.header_row.get(column_header)
 
-    def _is_ending_row(self, row):
+    @staticmethod
+    def _is_ending_row(row):
 
         for cell in row:
-            if cell.value in self.ending_row_cells:
+            if cell.value in ENDING_ROW_CELLS:
                 return True
             else:
                 return False
 
 
-class NullReport(AbstractReport):
-    def get_data(self):
-        return []
-
-    def _get_ws(self, file):
-        return None
-
+def get_alfa(file, attach=False, detach=False):
+    if AlfaReport.is_reportable(file):
+        if attach:
+            return AlfaReport(file, ATTACH_HEADER_ROW, [CODES_KDC_ATT, CODES_PK_ATT])
+        elif detach:
+            return AlfaReport(file, DETACH_HEADER_ROW, [CODES_KDC_DET, CODES_PK_DET])
+    else:
+        return NullReport(file)

@@ -1,6 +1,6 @@
 from reporter.config import header, codes, ids
 from reporter.exceptions import UnsupportedNameLength, UnrecognisedType
-from reporter.base import Report
+from reporter.base import AbstractReport
 
 target = ["ФИО", "Номер полиса", "Дата начала обслуживания", "Дата окончания обслуживания", "Программа обслуживания",
           "Дата рождения", "Страхователь", "Дата отмены"]
@@ -15,7 +15,7 @@ column_map_detach = {
 }
 
 
-class AlyansReport(Report):
+class AlyansReport(AbstractReport):
     def __init__(self, file, column_map, id_type):
         super().__init__(file)
         self.column_map = column_map

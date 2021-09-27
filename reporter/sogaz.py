@@ -1,6 +1,6 @@
 from reporter.exceptions import UnsupportedSogazCode
 from datetime import datetime
-from reporter.base import Report
+from reporter.base import AbstractReport
 
 
 def str_to_date(dates):
@@ -15,7 +15,7 @@ def sum_list(program):
     return s
 
 
-class SogazReport(Report):
+class SogazReport(AbstractReport):
     def __init__(self, file):
         super().__init__(file)
 

@@ -1,6 +1,6 @@
 from reporter.exceptions import UnrecognisedType
 from reporter.config import header, codes, ids
-from reporter.base import Report
+from reporter.base import AbstractReport
 
 target = ["ФИО", "Номер полиса", "Дата начала обслуживания", "Дата окончания обслуживания", "Программа обслуживания",
           "Дата рождения", "Страхователь", "Дата отмены"]
@@ -51,7 +51,7 @@ column_map_detach_kdp4 = {
 }
 
 
-class IngosstrahReport(Report):
+class IngosstrahReport(AbstractReport):
     def __init__(self, file, column_maps: dict, id_type):
         super().__init__(file)
         self.file_type = self.file.split(".")[0].split("_")[-1]

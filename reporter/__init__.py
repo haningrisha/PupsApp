@@ -1,17 +1,18 @@
-from reporter.config import header
+from .config import header
 from openpyxl import Workbook
 import os
 from os import listdir
 from os.path import isdir, isfile, join
-from reporter.utils import fit_columns_width
-from reporter.utils import open_xls_as_xlsx, open_csv_as_xlsx
-from reporter.alyans import AlyansDetach, AlyansAttach
-from reporter.renessans import RenessansAttach, RenessansDetach
-from reporter.sogaz import SogazAttach, SogazDetach
-from reporter.ingossrah import IngosstrahAttach, IngosstrahDetach
-from reporter.maks import MaksAttach, MaksDetach
-from reporter.rosgosstrah import RosgosstrahFabric, RosgosstrahReport, RosgosstrahDetach, RosgosstrahAttach
-from reporter.vsk import get_vsk
+from .utils import fit_columns_width
+from .utils import open_xls_as_xlsx, open_csv_as_xlsx
+from .alyans import AlyansDetach, AlyansAttach
+from .renessans import RenessansAttach, RenessansDetach
+from .sogaz import SogazAttach, SogazDetach
+from .ingossrah import IngosstrahAttach, IngosstrahDetach
+from .maks import MaksAttach, MaksDetach
+from .rosgosstrah import RosgosstrahFabric, RosgosstrahReport, RosgosstrahDetach, RosgosstrahAttach
+from .vsk import get_vsk
+from .alfa import get_alfa
 
 from typing import Callable
 
@@ -22,6 +23,7 @@ sogaz_folders = ["согаз"]
 maks_folders = ["макс"]
 rosgosstrah_folders = ["росгосстрах", "россгосстрах"]
 vsk_folders = ['вск']
+alfa_folders = ['альфа']
 detach_folders = ["откреп", "откр", "открепление", "открепления", "detach", "detachment", "detachments"]
 attach_folders = ["прикреп", "прикр", "прикрепление", "прикрепления", "attach", "attachment", "attachments"]
 
@@ -40,6 +42,7 @@ class ReportChain:
         self.add_insurance(self.add_maks, maks_folders)
         self.add_insurance(self.add_rosgosstrah, rosgosstrah_folders)
         self.add_insurance(self.add_vsk, vsk_folders)
+        self.add_insurance(self.add_alfa, alfa_folders)
 
     def add_insurance(self, adder: Callable, folder_names: list):
         only_dirs = [f for f in listdir(self.folder) if isdir(join(self.folder, f))]
@@ -104,6 +107,14 @@ class ReportChain:
             self.reports.extend([get_vsk(join(a, f), attach=True) for f in listdir(a) if isfile(join(a, f))])
         for d in detach:
             self.reports.extend([get_vsk(join(d, f), detach=True) for f in listdir(d) if isfile(join(d, f))])
+
+    def add_alfa(self, folder):
+        detach = self.get_detach(folder)
+        attach = self.get_attach(folder)
+        for a in attach:
+            self.reports.extend([get_alfa(join(a, f), attach=True) for f in listdir(a) if isfile(join(a, f))])
+        for d in detach:
+            self.reports.extend([get_alfa(join(d, f), detach=True) for f in listdir(d) if isfile(join(d, f))])
 
     def get_detach(self, folder):
         only_dirs = [f for f in listdir(folder) if isdir(join(folder, f))]
