@@ -47,7 +47,7 @@ DETACH_CONFIG = Config({
 })
 
 
-def get_absolut(file, attach=False, detach=False):
+def get_medexpress(file, attach=False, detach=False):
     if Report.is_reportable(file):
         if attach:
             return Report(file, ATTACH_CONFIG)
