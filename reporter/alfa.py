@@ -5,12 +5,12 @@ ATTACH_CONFIG = Config({
     "codes": (
         ct.Codes(  # KDC
             clinic_code=ct.ClinicCode(value='AO “АльфаСтрахование” КДЦ'),
-            control_code=ct.ControlCode(value='980/24/10-15'),
+            control_code=ct.ControlCode(value='0016/СК'),
             medicine_id=ct.MedicinesID(value=921)
         ),
         ct.Codes(  # PK
             clinic_code=ct.ClinicCode(value='AO “АльфаСтрахование” ПК'),
-            control_code=ct.ControlCode(value='0016/СК'),
+            control_code=ct.ControlCode(value='980/24/10-15'),
             medicine_id=ct.MedicinesID(value=921)
         )
     ),
@@ -29,13 +29,13 @@ ATTACH_CONFIG = Config({
 DETACH_CONFIG = Config({
     "codes": (
         ct.Codes(  # KDC
-            clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ'),
-            control_code=ct.ControlCode(value='ДС10к045СК/2016/16180SMU00009'),
+            clinic_code=ct.ClinicCode(value='AO “АльфаСтрахование” КДЦ'),
+            control_code=ct.ControlCode(value='0016/СК'),
             medicine_id=ct.MedicinesID(value=2)
         ),
         ct.Codes(  # PK
-            clinic_code=ct.ClinicCode(value='САО "ВСК" ПК'),
-            control_code=ct.ControlCode(value='ДС19к17180SMU00092/9020'),
+            clinic_code=ct.ClinicCode(value='AO “АльфаСтрахование” ПК'),
+            control_code=ct.ControlCode(value='980/24/10-15'),
             medicine_id=ct.MedicinesID(value=2)
         )
     ),

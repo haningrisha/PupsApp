@@ -5,12 +5,12 @@ ATTACH_CONFIG = Config({
     "codes": (
         ct.Codes(  # KDC
             clinic_code=ct.ClinicCode(value='ООО "БестДоктор" КДЦ'),
-            control_code=ct.ControlCode(value='9322'),
+            control_code=ct.ControlCode(value='055/ЮЛ/2018'),
             medicine_id=ct.MedicinesID(value=921)
         ),
         ct.Codes(  # PK
-            clinic_code=ct.ClinicCode(value='ООО "БестДоктор" КДЦ'),
-            control_code=ct.ControlCode(value='055/ЮЛ/2018'),
+            clinic_code=ct.ClinicCode(value='ООО "БестДоктор" ПК'),
+            control_code=ct.ControlCode(value='9322'),
             medicine_id=ct.MedicinesID(value=921)
         )
     ),
@@ -30,12 +30,12 @@ DETACH_CONFIG = Config({
     "codes": (
         ct.Codes(  # KDC
             clinic_code=ct.ClinicCode(value='ООО "БестДоктор" КДЦ'),
-            control_code=ct.ControlCode(value='9322'),
+            control_code=ct.ControlCode(value='055/ЮЛ/2018'),
             medicine_id=ct.MedicinesID(value=2)
         ),
         ct.Codes(  # PK
-            clinic_code=ct.ClinicCode(value='ООО "БестДоктор" КДЦ'),
-            control_code=ct.ControlCode(value='055/ЮЛ/2018'),
+            clinic_code=ct.ClinicCode(value='ООО "БестДоктор" ПК'),
+            control_code=ct.ControlCode(value='9322'),
             medicine_id=ct.MedicinesID(value=2)
         )
     ),
