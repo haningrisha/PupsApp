@@ -3,6 +3,7 @@ from openpyxl import Workbook
 import os
 from os import listdir
 from os.path import isdir, isfile, join
+from .exceptions import PupsAppException
 from .utils import fit_columns_width
 from .utils import open_xls_as_xlsx, open_csv_as_xlsx
 from .alyans import AlyansDetach, AlyansAttach
@@ -220,9 +221,10 @@ class ReportGenerator:
             try:
                 data += report.get_data()
             except Exception as e:
+                message = f' в файле {report.file}'
                 if hasattr(e, 'message'):
-                    e.message = e.message + f' в файле {report.file}'
-                raise
+                    message = e.message + message
+                raise PupsAppException(expression=e, message=message)
         for r in data:
             ws.append(r)
         fit_columns_width(ws)

@@ -47,8 +47,8 @@ while True:
             sg.popup_error(e.expression, e.message)
         except PupsAppException as e:
             sg.popup_error(e.expression, e.message)
-        # except Exception as e:
-        #     sg.popup_error("Неизвестная ошибка", "{0} {1}".format(str(e.__class__), e.args))
+        except Exception as e:
+            sg.popup_error("Неизвестная ошибка", "{0} {1}".format(str(e.__class__), e.args))
     elif event == "Показать в Finder":
         subprocess.call(["open", "-R", saved_path])
 window.close()
