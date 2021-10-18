@@ -5,12 +5,12 @@ import reporter.column_types as ct
 ATTACH_CONFIG = Config({
     "codes": (
         ct.Codes(  # KDC
-            clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ'),
+            clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ прямой М'),
             control_code=ct.ControlCode(value='ДС10к045СК/2016/16180SMU00009'),
             medicine_id=ct.MedicinesID(value=4001554)
         ),
         ct.Codes(  # PK
-            clinic_code=ct.ClinicCode(value='САО "ВСК" ПК'),
+            clinic_code=ct.ClinicCode(value='САО "ВСК" ПК прямой М'),
             control_code=ct.ControlCode(value='ДС19к17180SMU00092/9020'),
             medicine_id=ct.MedicinesID(value=4001554)
         )
@@ -30,12 +30,12 @@ ATTACH_CONFIG = Config({
 DETACH_CONFIG = Config({
     "codes": (
         ct.Codes(  # KDC
-            clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ'),
+            clinic_code=ct.ClinicCode(value='САО "ВСК" КДЦ прямой М'),
             control_code=ct.ControlCode(value='ДС10к045СК/2016/16180SMU00009'),
             medicine_id=ct.MedicinesID(value=2)
         ),
         ct.Codes(  # PK
-            clinic_code=ct.ClinicCode(value='САО "ВСК" ПК'),
+            clinic_code=ct.ClinicCode(value='САО "ВСК" ПК прямой М'),
             control_code=ct.ControlCode(value='ДС19к17180SMU00092/9020'),
             medicine_id=ct.MedicinesID(value=2)
         )
