@@ -1,6 +1,6 @@
 from reporter.exceptions import UnrecognisedType
 from reporter.config import header, codes, ids
-from reporter.base import AbstractReport
+from reporter.report import AbstractReport
 
 target = ["ФИО", "Номер полиса", "Дата начала обслуживания", "Дата окончания обслуживания", "Программа обслуживания",
           "Дата рождения", "Страхователь", "Дата отмены"]

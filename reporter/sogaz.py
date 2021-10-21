@@ -1,6 +1,6 @@
 from reporter.exceptions import UnsupportedSogazCode
 from datetime import datetime
-from reporter.base import AbstractReport
+from reporter.report import AbstractReport
 
 
 def str_to_date(dates):

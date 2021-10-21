@@ -1,4 +1,4 @@
-from reporter.base import Report, NullReport, ENDING_ROW_CELLS, Config
+from reporter.report import Report, NullReport, ENDING_ROW_CELLS, Config
 import reporter.column_types as ct
 
 

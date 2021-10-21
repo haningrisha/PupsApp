@@ -1,7 +1,7 @@
 from reporter.config import codes, ids
 from reporter.exceptions import UnsupportedRenCode, NoDateFound
 import re
-from reporter.base import AbstractReport
+from reporter.report import AbstractReport
 import datetime
 
 target = ["Фамилия", "Имя", "Отчество", "Дата рождения", "Номер полиса"]

@@ -1,4 +1,4 @@
-from reporter.base import AbstractReport
+from reporter.report import AbstractReport
 
 
 class MaksReport(AbstractReport):

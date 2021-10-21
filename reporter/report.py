@@ -75,6 +75,7 @@ class Report(AbstractReport):
         self.codes = config.get("codes")
         self.header_row = config.get("header_row")
         self.ending_row_cells = config.get("ending_row_cells")
+        self.is_code_filtered = config.get("is_code_filtered", False)
         self.config = config
 
     def get_data(self):
@@ -93,13 +94,14 @@ class Report(AbstractReport):
                 self.final_table.append(final_row)
 
     def _add_codes(self):
-        new_final_table = []
-        for row in self.final_table:
-            for code in self.codes:
-                copy_row = row.copy()
-                self._add_cell_to_row(code, copy_row)
-                new_final_table.append(copy_row)
-        self.final_table = new_final_table
+        if not self.is_code_filtered:
+            new_final_table = []
+            for row in self.final_table:
+                for code in self.codes:
+                    copy_row = row.copy()
+                    self._add_cell_to_row(code, copy_row)
+                    new_final_table.append(copy_row)
+            self.final_table = new_final_table
 
     @singledispatchmethod
     def _add_cell_to_row(self, cell, row):
@@ -114,6 +116,15 @@ class Report(AbstractReport):
     def _(self, cell: ct.Codes, row):
         for sub_value in cell.value:
             row[sub_value.column_number] = sub_value.value
+
+    @_add_cell_to_row.register
+    def _(self, cell: ct.CodeFilter, row):
+        try:
+            for codes in cell.get_codes():
+                for code in codes.value:
+                    row[code.column_number] = code.value
+        except TypeError:
+            pass
 
     def _make_typed_table(self, table: List[List[Cell]]) -> List[List[ct.ColumnType]]:
         typed_table = []

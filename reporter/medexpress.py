@@ -1,4 +1,4 @@
-from .base import Report, NullReport, ENDING_ROW_CELLS, Config
+from .report import Report, NullReport, ENDING_ROW_CELLS, Config
 from . import column_types as ct
 
 ATTACH_CONFIG = Config({

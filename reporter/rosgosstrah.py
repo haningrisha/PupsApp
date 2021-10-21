@@ -1,4 +1,4 @@
-from reporter.base import AbstractReport
+from reporter.report import AbstractReport
 from reporter.exceptions import UnsupportedNameLength, UnrecognisedType, UnsupportedDateQuantity, NoDateFound, \
     FileTypeWasNotDefined
 import re

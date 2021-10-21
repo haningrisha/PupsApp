@@ -7,6 +7,12 @@ import re
 
 
 @dataclass
+class Rules:
+    intersect_rules: list
+    else_rule: Any
+
+
+@dataclass
 class ColumnType(ABC):
     value: Any
     column_number: int
@@ -136,3 +142,16 @@ class Codes:
     @property
     def value(self):
         return self.clinic_code, self.control_code, self.medicine_id
+
+
+@dataclass
+class CodeFilter:
+    value: str
+    rules: Rules
+
+    def get_codes(self):
+        statement = self.value.strip().split()
+        for rule in self.rules.intersect_rules:
+            if rule.get("rule") & set(statement):
+                return rule.get("value")
+        return self.rules.else_rule
