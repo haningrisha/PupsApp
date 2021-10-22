@@ -31,10 +31,10 @@ ATTACH_CONFIG = Config({
                     {
                         "rule": {"СЕМРАШ"},
                         "value": (ct.Codes(
-                            clinic_code=ct.ClinicCode(value='АО "АльфаСтрахование" ПК CE'),
-                            control_code=ct.ControlCode(value='980/24/10-15'),
+                            clinic_code=ct.ClinicCode(value='АльфаСЕМРАШ ПК'),
+                            control_code=ct.ControlCode(value='980/24/10-15/21'),
                             medicine_id=ct.MedicinesID(value=921)
-                        ), )
+                        ),)
                     }
                 ],
                 else_rule=(
@@ -57,25 +57,41 @@ ATTACH_CONFIG = Config({
 })
 
 DETACH_CONFIG = Config({
-    "codes": (
-        ct.Codes(  # KDC
-            clinic_code=ct.ClinicCode(value='АО "АльфаСтрахование" КДЦ'),
-            control_code=ct.ControlCode(value='0016/СК'),
-            medicine_id=ct.MedicinesID(value=2)
-        ),
-        ct.Codes(  # PK
-            clinic_code=ct.ClinicCode(value='АО "АльфаСтрахование" ПК'),
-            control_code=ct.ControlCode(value='980/24/10-15'),
-            medicine_id=ct.MedicinesID(value=2)
-        )
-    ),
     "header_row": {
         "фио": ct.FIO,
         "дата рождения": ct.BirthDay,
         "№ полиса": ct.Policy,
-        "дата открепления с (с данной даты не обслуживается)": ct.DateCancel
+        "дата открепления с (с данной даты не обслуживается)": ct.DateCancel,
+        "группа, № договора, организация": partial(
+            ct.CodeFilter,
+            rules=ct.Rules(
+                intersect_rules=[
+                    {
+                        "rule": {"СЕМРАШ"},
+                        "value": (ct.Codes(
+                            clinic_code=ct.ClinicCode(value='АльфаСЕМРАШ ПК'),
+                            control_code=ct.ControlCode(value='980/24/10-15/21'),
+                            medicine_id=ct.MedicinesID(value=2)
+                        ),)
+                    }
+                ],
+                else_rule=(
+                    ct.Codes(  # KDC
+                        clinic_code=ct.ClinicCode(value='АО "АльфаСтрахование" КДЦ'),
+                        control_code=ct.ControlCode(value='0016/СК'),
+                        medicine_id=ct.MedicinesID(value=2)
+                    ),
+                    ct.Codes(  # PK
+                        clinic_code=ct.ClinicCode(value='АО "АльфаСтрахование" ПК'),
+                        control_code=ct.ControlCode(value='980/24/10-15'),
+                        medicine_id=ct.MedicinesID(value=2)
+                    )
+                )
+            ),
+        )
     },
-    "ending_row_cells": ENDING_ROW_CELLS
+    "ending_row_cells": ENDING_ROW_CELLS,
+    "is_code_filtered": True
 })
 
 

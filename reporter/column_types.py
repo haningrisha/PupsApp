@@ -150,7 +150,7 @@ class CodeFilter:
     rules: Rules
 
     def get_codes(self):
-        statement = self.value.strip().split()
+        statement = re.split(r'(\s+|;|")', self.value.strip())
         for rule in self.rules.intersect_rules:
             if rule.get("rule") & set(statement):
                 return rule.get("value")
