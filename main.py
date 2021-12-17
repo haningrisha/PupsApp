@@ -3,6 +3,7 @@ from openpyxl.utils.exceptions import InvalidFileException
 from reporter.exceptions import UnsupportedNameLength, UnrecognisedType, PupsAppException
 from reporter import ReportChain, ReportGenerator
 import subprocess
+import traceback
 
 sg.theme("Purple")
 
@@ -46,9 +47,9 @@ while True:
         except UnsupportedNameLength as e:
             sg.popup_error(e.expression, e.message)
         except PupsAppException as e:
-            sg.popup_error(e.expression, e.message)
+            sg.popup_error(e.expression, traceback.format_exc())
         except Exception as e:
-            sg.popup_error("Неизвестная ошибка", "{0} {1}".format(str(e.__class__), e.args))
+            sg.popup_error("Неизвестная ошибка", "{0} {1}".format(str(e.__class__), traceback.format_exc()))
     elif event == "Показать в Finder":
         subprocess.call(["open", "-R", saved_path])
 window.close()

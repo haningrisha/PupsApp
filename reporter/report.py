@@ -176,13 +176,14 @@ class Report(AbstractReport):
                 if isinstance(cell.value, str):
                     if cell.value.lower() in self.header_row:
                         min_row = cell.row
-                        max_row = self._find_max_row(min_row)
+                        min_col = cell.column
+                        max_row = self._find_max_row(min_row, min_col)
                         self.tables.append(self.ws[min_row:max_row])
                         break
 
-    def _find_max_row(self, min_row: int):
+    def _find_max_row(self, min_row: int, min_col: int):
         """ Метод для поиска максимального ряда подтаблицы по минимальному """
-        for row in self.ws.iter_rows(min_row=min_row+self.config.depth-1):
+        for row in self.ws.iter_rows(min_row=min_row+self.config.depth-1, min_col=min_col):
             if self._is_ending_row(row):
                 return row[0].row - 1
         return self.ws.max_row
