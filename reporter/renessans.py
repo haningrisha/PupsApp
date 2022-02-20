@@ -19,12 +19,20 @@ class RenessansAttach(RenessansReport):
             data += self.parse_attach_row(row)
         return data
 
-    @staticmethod
-    def parse_attach_row(row):
+    def parse_attach_row(self, row):
         r = [cell.value for cell in row]
         r.insert(8, None)
-        return [r + codes["renessans2"] + ids["renessans_attach"],
-                r + codes["renessans1"] + ids["renessans_attach"]]
+        return [r + self.get_code()]
+
+    def get_code(self):
+        marker = self.file.split('/')[-1].split('_')[1]
+        if marker == '1060':
+            return codes["renessans1"] + ids["renessans_attach"]
+        elif marker == '1682':
+            return codes["renessans2"] + ids["renessans_attach"]
+        else:
+            raise UnsupportedRenCode("Ошибка кода Ренессанс", "Неподдерживаемая комания {0}, \n "
+                                                              "В файле {1}".format(marker, self.file))
 
 
 class RenessansDetach(RenessansReport):

@@ -4,18 +4,6 @@ from .report import Report, NullReport, ENDING_ROW_CELLS, Config
 from . import column_types as ct
 
 ATTACH_CONFIG = Config({
-    # "codes": (
-    #     ct.Codes(  # KDC
-    #         clinic_code=ct.ClinicCode(value='АО "АльфаСтрахование" КДЦ'),
-    #         control_code=ct.ControlCode(value='0016/СК'),
-    #         medicine_id=ct.MedicinesID(value=921)
-    #     ),
-    #     ct.Codes(  # PK
-    #         clinic_code=ct.ClinicCode(value='АО "АльфаСтрахование" ПК'),
-    #         control_code=ct.ControlCode(value='980/24/10-15'),
-    #         medicine_id=ct.MedicinesID(value=921)
-    #     )
-    # ),
     "header_row": {
         "фио": ct.FIO,
         "дата рождения": ct.BirthDay,
@@ -39,13 +27,13 @@ ATTACH_CONFIG = Config({
                 ],
                 else_rule=(
                     ct.Codes(  # KDC
-                        clinic_code=ct.ClinicCode(value='АО "АльфаСтрахование" КДЦ'),
-                        control_code=ct.ControlCode(value='0016/СК'),
+                        clinic_code=ct.ClinicCode(value='Альфа КДЦ Первичные консультации'),
+                        control_code=ct.ControlCode(value='ДС №2 к дог. №74-21 от 01.10.2021 г.'),
                         medicine_id=ct.MedicinesID(value=921)
                     ),
                     ct.Codes(  # PK
-                        clinic_code=ct.ClinicCode(value='АО "АльфаСтрахование" ПК'),
-                        control_code=ct.ControlCode(value='980/24/10-15'),
+                        clinic_code=ct.ClinicCode(value='Альфа ПК Первичные консультации'),
+                        control_code=ct.ControlCode(value='ДС №2 к дог. №73-21 от 01.10.2021 г.'),
                         medicine_id=ct.MedicinesID(value=921)
                     )
                 )
@@ -77,13 +65,13 @@ DETACH_CONFIG = Config({
                 ],
                 else_rule=(
                     ct.Codes(  # KDC
-                        clinic_code=ct.ClinicCode(value='АО "АльфаСтрахование" КДЦ'),
-                        control_code=ct.ControlCode(value='0016/СК'),
+                        clinic_code=ct.ClinicCode(value='Альфа КДЦ Первичные консультации'),
+                        control_code=ct.ControlCode(value='ДС №2 к дог. №74-21 от 01.10.2021 г.'),
                         medicine_id=ct.MedicinesID(value=2)
                     ),
                     ct.Codes(  # PK
-                        clinic_code=ct.ClinicCode(value='АО "АльфаСтрахование" ПК'),
-                        control_code=ct.ControlCode(value='980/24/10-15'),
+                        clinic_code=ct.ClinicCode(value='Альфа ПК Первичные консультации'),
+                        control_code=ct.ControlCode(value='ДС №2 к дог. №73-21 от 01.10.2021 г.'),
                         medicine_id=ct.MedicinesID(value=2)
                     )
                 )
