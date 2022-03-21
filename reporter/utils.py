@@ -1,5 +1,6 @@
 import xlrd
 from openpyxl import Workbook
+from openpyxl.worksheet.worksheet import Worksheet
 import csv
 
 
@@ -43,3 +44,20 @@ def fit_columns_width(ws):
 def format_date(ws, column):
     for row in ws.iter_rows(min_row=1, min_col=column, max_col=column):
         row[0].number_format = 'dd.mm.yyyy'
+
+
+def is_value_in_sheet(ws: Worksheet, value: str) -> bool:
+    """ Функция определяет содержит ли таблица значение """
+    for row in ws.iter_rows(values_only=True):
+        for cell in row:
+            if not value.lower() in str(cell).strip().lower():
+                continue
+            return True
+    return False
+
+
+def combine_codes(code1: dict, code2: dict):
+    result = {}
+    for key in code1.keys():
+        result.update({key: code1[key] + code2.get(key, [])})
+    return result

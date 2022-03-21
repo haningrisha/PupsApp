@@ -1,6 +1,15 @@
 from reporter.exceptions import UnsupportedSogazCode
 from datetime import datetime
 from reporter.report import AbstractReport
+from reporter import utils
+from reporter import common
+from reporter import sogaz_conf as conf
+
+
+SOGAZ_ACCESS_TYPES = {
+    common.AccessTypes.PK: 'АО "Поликлинический комплекс"',
+    common.AccessTypes.SMT: 'АО "Современные медицинские технологии"'
+}
 
 
 def str_to_date(dates):
@@ -38,40 +47,23 @@ class SogazReport(AbstractReport):
         return data
 
     def get_code(self, program, work_place=""):
-        string_program = program
-        program = program.split(';')
-        program = sum_list([p.split(" ") for p in program])
-        program = [p.lower() for p in program]
-        program = sum_list([p.split("_") for p in program])
-        program = sum_list([p.split("\"") for p in program])
-        if work_place.strip() == "\"ГАЗПРОМ МЕЖРЕГИОНГАЗ САНКТ-ПЕТЕРБУРГ\" ООО":
-            code = [["Согаз Межрегионгаз Прямой доступ ПК-КДЦ", "Межрегионгаз Прямой доступ ПК-КДЦ", 4000971]]
-        elif {"\"аброссия\"", "аброссия", "аб"} & set(program):
-            code = [["АБС СТОМАТОЛОГИЯ Прямой доступ", "ДС№9 к 0618RP137 АБРОССИЯ", 1102]]
-        elif "невское" in program:
-            code = [["Невское ПКБ СОГАЗ", "ДС№10 к 0618RP137", 4001439]]
-        elif "мариинский" in program:
-            code = [["Мариинский театр Прямой доступ ПК", "0618RР137 Мариинский театр Прямой доступ ПК", 4000996],
-                    ["Мариинский театр Прямой доступ Согаз КДЦ", "0618RВ138 Мариинский театр Прямой доступ КДЦ",
-                     4000996]]
-        elif "арктика" in program:
-            code = [["СОГАЗ Прямой доступ Арктика ПК", "0618RP137 Арктика ПК", 1102],
-                    ["СОГАЗ Прямой доступ Арктика КДЦ", "0618RВ138 Арктика КДЦ", 1102]]
-        elif {"\"цтсс\"", "цтсс"} & set(program):
-            code = [["ЦТСС прямой контроль", "0618RP137 (ЦТСС)", 4001294]]
-        elif {"амб.", "пнд", "амбулаторный"} & set(program):
-            code = [
-                ["СОГАЗ ПРЯМОЙ ДОСТУП ПК", "0618RР137 ПРЯМОЙ ДОСТУП ПК", 4000971],
-                ["Прямой доступ СОГАЗ КДЦ", "0618RВ138 Прямой доступ СОГАЗ КДЦ", 4000971]
-            ]
-            if "стоматология" in program:
-                code += [["СОГАЗ СТОМАТОЛОГИЯ Прямой доступ ПК", "0618RР137 СТОМАТОЛОГИЯ ПРЯМОЙ ДОСТУП ПК", 4000971]]
-        elif "стоматология" in program:
-            code = [["СОГАЗ СТОМАТОЛОГИЯ Прямой доступ ПК", "0618RР137 СТОМАТОЛОГИЯ ПРЯМОЙ ДОСТУП ПК", 4000971]]
-        else:
+        matcher = conf.get_sogaz_code_matcher()
+        code = matcher.get_code(program, work_place, self.access_type)
+        if code is None:
             raise UnsupportedSogazCode("Код Согаз не распознан", "Не удалось распознать код в файле {0} в "
-                                                                 "строке {1}".format(self.file, string_program))
+                                                                 "строке {1}".format(self.file, program))
         return code
+
+    @property
+    def access_type(self) -> common.AccessTypes:
+        if utils.is_value_in_sheet(self.ws, SOGAZ_ACCESS_TYPES[common.AccessTypes.PK]):
+            return common.AccessTypes.PK
+        elif utils.is_value_in_sheet(self.ws, SOGAZ_ACCESS_TYPES[common.AccessTypes.SMT]):
+            return common.AccessTypes.SMT
+        else:
+            raise UnsupportedSogazCode(
+                "Организация Согаз не распознана", "Не удалось распознать код в файле {0}".format(self.file)
+            )
 
 
 class SogazAttach(SogazReport):

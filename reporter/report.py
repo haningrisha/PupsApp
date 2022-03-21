@@ -120,9 +120,12 @@ class Report(AbstractReport):
     @_add_cell_to_row.register
     def _(self, cell: ct.CodeFilter, row):
         try:
+            result = []
             for codes in cell.get_codes():
+                row_copy = row.copy()
                 for code in codes.value:
-                    row[code.column_number] = code.value
+                    row_copy[code.column_number] = code.value
+                result.append(row_copy)
         except TypeError:
             pass
 
